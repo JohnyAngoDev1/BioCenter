@@ -1,0 +1,59 @@
+{
+  "Sueros Vitales": [
+    {
+      "id": 1,
+      "title": "Suero Inmunológico (Cóctel Myers)",
+      "description": "Refuerzo total de defensas y vitalidad celular.",
+      "longDescription": "Nuestro Cóctel Myers es la fórmula estándar de oro para la nutrición intravenosa. Contiene una mezcla balanceada de Vitamina C, Complejo B, Magnesio y Calcio para combatir la fatiga crónica y fortalecer el sistema inmune de manera inmediata.",
+      "price": 120.00,
+      "image": "/images/services/suero_inmune.png",
+      "category": "Sueros Vitales",
+      "badge": "Más Vendido",
+      "features": ["Vitamina C alta dosis", "Complejo B completo", "Magnesio y Calcio", "Hidratación instantánea"]
+    },
+    {
+      "id": 2,
+      "title": "Suero Energizante Vital",
+      "description": "Máxima energía para tu rendimiento diario.",
+      "longDescription": "Diseñado para deportistas y ejecutivos con alto nivel de estrés. Este suero combina Vitamina B12 con aminoácidos esenciales que optimizan la producción de energía a nivel mitocondrial, eliminando la sensación de cansancio mental y físico.",
+      "price": 95.00,
+      "image": "/images/services/suero_energia.png",
+      "category": "Sueros Vitales",
+      "features": ["Vitamina B12", "Aminoácidos esenciales", "Fórmula anti-fatiga", "Claridad mental"]
+    },
+    {
+      "id": 3,
+      "title": "Suero Detox Profundo",
+      "description": "Limpieza interna y resplandor para tu piel.",
+      "longDescription": "Con una dosis potente de Glutatión, el antioxidante maestro, este suero ayuda a tu hígado a eliminar toxinas acumuladas mientras mejora notablemente la apariencia y luminosidad de tu piel.",
+      "price": 110.00,
+      "image": "/images/services/suero_detox.png",
+      "category": "Sueros Vitales",
+      "badge": "Popular",
+      "features": ["Potente Glutatión", "Acción antioxidante", "Apoyo hepático", "Brillo cutáneo"]
+    }
+  ],
+  "Cuidado Especializado": [
+    {
+      "id": 4,
+      "title": "Suero Antienvejecimiento",
+      "description": "Rejuvenecimiento celular y salud capilar.",
+      "longDescription": "Una combinación poderosa de Vitamina C y Colágeno que estimula la regeneración de tejidos, fortalece el cabello y las uñas, y combate el daño oxidativo causado por los radicales libres.",
+      "price": 135.00,
+      "image": "/images/services/suero_beauty.png",
+      "category": "Cuidado Especializado",
+      "features": ["Colágeno hidrolizado", "Vitamina C pura", "Efecto antiinflamatorio", "Salud de tejidos"]
+    },
+    {
+      "id": 5,
+      "title": "Suero de Recuperación Deportiva",
+      "description": "Recuperación rápida post-esfuerzo intenso.",
+      "longDescription": "Ideal para después de competencias o entrenamientos intensos. Repone electrolitos, elimina el ácido láctico y acelera la recuperación muscular mediante una hidratación profunda y nutritiva.",
+      "price": 85.00,
+      "image": "/images/services/suero_recovery.png",
+      "category": "Cuidado Especializado",
+      "badge": "Atletas",
+      "features": ["Electrolitos balanceados", "Recuperación muscular", "Eliminación de toxinas", "Hidratación profunda"]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+    "cards_section_subtitle": "Bienestar Vital",
+    "cards_section_title": "Sueros de Vitaminas",
+    "cards_section_description": "Revitaliza tu cuerpo con nuestras combinaciones exclusivas de nutrientes esenciales, diseñados para optimizar tu salud desde el interior.",
+    "cards_item_price_prefix": "Precio del Suero",
+    "cards_section_error": "Error al cargar el catálogo. Por favor, intenta más tarde.",
+    "cards_section_empty": "No hay sueros disponibles en esta categoría por el momento.",
+    "cards_section_view_all": "Ver Catálogo Completo",
+    "categories": ["Todo", "Sueros Vitales", "Cuidado Especializado"],
+    "services_page_hero_badge": "Nutrición Intravenosa",
+    "services_page_hero_title": "Nuestros",
+    "services_page_hero_title_highlight": "Sueros Vitaminados",
+    "services_page_hero_description": "Experimenta la máxima absorción de nutrientes con terapias diseñadas por expertos para potenciar tu energía, inmunidad y bienestar general."
+}

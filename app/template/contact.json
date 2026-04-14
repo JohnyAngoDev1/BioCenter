@@ -1,0 +1,19 @@
+{
+    "contactus_subject_option_1": "Información General",
+    "contactus_subject_option_2": "Presupuesto",
+    "contactus_subject_option_3": "Asesoría Técnica",
+    "contactus_subject_option_4": "Colaboraciones",
+    "contactus_header_title": "Demos vida a\nsu proyecto.",
+    "contactus_header_description": "Estamos listos para acompañarle con soluciones personalizadas. Rellene el formulario o visítenos para una evaluación detallada.",
+    "contactus_social_title": "Sigue nuestro trabajo",
+    "contactus_form_name_label": "NOMBRE COMPLETO",
+    "contactus_form_email_label": "CORREO ELECTRÓNICO",
+    "contactus_form_subject_label": "SERVICIO DE INTERÉS",
+    "contactus_form_subject_placeholder": "Seleccione un servicio",
+    "contactus_form_message_label": "MENSAJE",
+    "contactus_form_message_placeholder": "Describa brevemente su idea...",
+    "contactus_form_submit_button": "Enviar Consulta",
+    "contactus_info_email": "cpavond@gmail.com",
+    "contactus_info_address": "Ecuador",
+    "contactus_info_phone": "0986122487"
+}
