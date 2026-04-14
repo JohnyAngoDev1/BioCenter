@@ -38,12 +38,12 @@ const { t } = useTemplate()
                         <div class="flex items-center gap-4 py-2 px-4">
                             <div class="flex -space-x-3">
                                 <div class="w-10 h-10 rounded-full bg-[#f1f5f9] border-2 border-white shadow-sm overflow-hidden">
-                                    <NuxtImg src="/images/services/service-1.jpg" class="w-full h-full object-cover" />
+                                    <NuxtImg src="/images/services/suero_beauty.png" class="w-full h-full object-cover" />
                                 </div>
                                 <div class="w-10 h-10 rounded-full bg-[#F7F7F7] border-2 border-white shadow-sm overflow-hidden">
-                                    <NuxtImg src="/images/services/service-2.jpg" class="w-full h-full object-cover" />
+                                    <NuxtImg src="/images/services/suero_detox.png" class="w-full h-full object-cover" />
                                 </div>
-                                <div class="w-10 h-10 rounded-full bg-[#9E2C33] border-2 border-white shadow-sm overflow-hidden text-white flex items-center justify-center text-[10px] font-bold">
+                                <div class="w-10 h-10 rounded-full bg-primary border-2 border-white shadow-sm overflow-hidden text-white flex items-center justify-center text-[10px] font-bold">
                                     +50
                                 </div>
                             </div>
