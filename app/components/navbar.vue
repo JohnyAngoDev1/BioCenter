@@ -57,7 +57,7 @@ const handleCheckout = () => {
                         v-if="cartCount > 0"
                         color="primary"
                         size="xs"
-                        class="absolute -top-1 -right-1 rounded-full px-1 min-w-[18px]"
+                        class="absolute -top-1 -right-1 rounded-full px-1 min-w-[20px] h-[20px] flex items-center justify-center font-bold"
                     >
                         {{ cartCount }}
                     </UBadge>

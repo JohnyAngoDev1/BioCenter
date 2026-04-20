@@ -16,8 +16,6 @@ const { addToCart } = useCart()
 const toast = useToast()
 
 const selectedCategory = ref('Todo')
-const isDetailsOpen = ref(false)
-const selectedService = ref<Service | null>(null)
 
 const categories = t('categories')
 
@@ -37,8 +35,7 @@ const filteredServices = computed(() => {
 })
 
 const openDetails = (item: Service) => {
-  selectedService.value = { ...item }
-  isDetailsOpen.value = true
+  window.open(`/servicio/${item.slug}`, '_blank')
 }
 
 const handleAddToCart = (item: Service) => {
@@ -166,74 +163,6 @@ const handleAddToCart = (item: Service) => {
         </UButton>
       </div>
 
-      <!-- Modal de Detalles -->
-      <ClientOnly>
-        <UModal v-model:open="isDetailsOpen" :ui="{ content: 'sm:max-w-2xl overflow-hidden rounded-none sm:rounded-3xl p-0' }">
-          <template #content>
-            <div v-if="selectedService" class="bg-white flex flex-col md:flex-row max-h-dvh sm:max-h-[90vh] overflow-y-auto md:overflow-hidden">
-              <!-- Side: Image -->
-              <div class="w-full md:w-1/2 h-52 sm:h-64 md:h-auto shrink-0">
-                <NuxtImg :src="selectedService.image" class="w-full h-full object-cover" />
-              </div>
-
-              <!-- Side: Info -->
-              <div class="w-full md:w-1/2 p-5 sm:p-8 flex flex-col md:overflow-y-auto">
-                <div class="mb-4 sm:mb-6">
-                  <span class="text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-2 block">
-                    {{ selectedService.category }}
-                  </span>
-                  <h2 class="text-2xl sm:text-3xl font-black text-black leading-tight mb-3 sm:mb-4">
-                    {{ selectedService.title }}
-                  </h2>
-                  <p class="text-primary font-black text-2xl sm:text-3xl mb-4 sm:mb-6">
-                    ${{ selectedService.price.toFixed(2) }}
-                  </p>
-
-                  <div class="space-y-4 text-gray-600">
-                    <p class="leading-relaxed text-sm sm:text-base">
-                      {{ selectedService.longDescription || selectedService.description }}
-                    </p>
-
-                    <div v-if="selectedService.features && selectedService.features.length" class="pt-2 sm:pt-4">
-                      <h4 class="font-bold text-black mb-3 uppercase text-xs tracking-widest">Incluye:</h4>
-                      <ul class="space-y-2">
-                        <li v-for="feat in selectedService.features" :key="feat" class="flex items-start gap-2 text-sm">
-                          <UIcon name="i-heroicons-check-circle-20-solid" class="text-primary shrink-0" />
-                          {{ feat }}
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="mt-auto pt-4 sm:pt-8 flex flex-col gap-3">
-                  <UButton
-                    block
-                    size="xl"
-                    color="primary"
-                    class="rounded-2xl py-3 sm:py-4 font-black shadow-xl shadow-primary/20"
-                    @click="handleAddToCart(selectedService)"
-                  >
-                    Añadir al Carrito
-                    <template #trailing>
-                      <UIcon name="i-heroicons-shopping-cart-20-solid" />
-                    </template>
-                  </UButton>
-                  <UButton
-                    block
-                    variant="ghost"
-                    color="neutral"
-                    class="rounded-xl py-2 sm:py-3 font-bold"
-                    @click="isDetailsOpen = false"
-                  >
-                    Seguir Navegando
-                  </UButton>
-                </div>
-              </div>
-            </div>
-          </template>
-        </UModal>
-      </ClientOnly>
 
     </UContainer>
   </UPageSection>

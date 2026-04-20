@@ -8,4 +8,5 @@ export interface Service {
     category: string;
     badge?: string;
     features?: string[];
+    slug?: string;
 }
