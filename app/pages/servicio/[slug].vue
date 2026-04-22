@@ -24,7 +24,7 @@ const recommendedServices = computed(() => {
 })
 
 const openRecommended = (slug: string) => {
-  window.open(`/servicio/${slug}`, '_blank')
+  navigateTo(`/servicio/${slug}`)
 }
 
 const handleAddToCart = () => {
@@ -40,16 +40,10 @@ const handleAddToCart = () => {
 }
 
 const goBack = () => {
-  // En las pestañas nuevas (_blank), no hay historial previo
   if (window.history.length > 1) {
     router.back()
   } else {
-    // Intentamos cerrar la pestaña creada artificialmente
-    window.close()
-    // Fallback por si la política del navegador bloqueó el cierre automático
-    setTimeout(() => {
-      navigateTo('/')
-    }, 100)
+    navigateTo('/')
   }
 }
 </script>
@@ -137,7 +131,6 @@ const goBack = () => {
             <UButton
               block
               variant="ghost"
-              color="gray"
               class="rounded-xl py-3 font-bold hover:bg-gray-50"
               @click="goBack"
             >

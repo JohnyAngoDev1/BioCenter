@@ -11,16 +11,8 @@ const { cart, cartCount, cartTotal, updateQuantity, removeFromCart, clearCart } 
 const isCartOpen = ref(false)
 
 const handleCheckout = () => {
-  const phone = t('wspbutton_phone_number')
-  let message = `*Nuevo Pedido - Biocenter*\n\n`
-  
-  cart.value.forEach(item => {
-    message += `• ${item.title} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}\n`
-  })
-  
-  message += `\n*Total a Pagar: $${cartTotal.value.toFixed(2)}*`
-  
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
+  isCartOpen.value = false
+  navigateTo('/checkout')
 }
 </script>
 
@@ -175,7 +167,7 @@ const handleCheckout = () => {
                     </UButton>
                 </div>
                 <p class="text-[10px] text-center text-gray-400 font-medium">
-                    Será redirigido a WhatsApp para coordinar el pago y la entrega.
+                    Será redirigido a un punto de pago y formulario seguro.
                 </p>
             </div>
           </div>

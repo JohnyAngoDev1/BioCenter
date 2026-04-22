@@ -35,7 +35,7 @@ const filteredServices = computed(() => {
 })
 
 const openDetails = (item: Service) => {
-  window.open(`/servicio/${item.slug}`, '_blank')
+  navigateTo(`/servicio/${item.slug}`)
 }
 
 const handleAddToCart = (item: Service) => {

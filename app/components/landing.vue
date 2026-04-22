@@ -1,7 +1,74 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useTemplate } from '~/composables/useTemplate'
 
 const { t } = useTemplate()
+
+// API Test logic
+const isProcessing = ref(false)
+const apiResponse = ref<any>(null)
+
+const testPrepareApi = async () => {
+  isProcessing.value = true
+  apiResponse.value = 'Procesando...'
+  
+  const payload = {
+    source_module: 'store',
+    full_name: 'Johnny Ango',
+    document_number: '1723456789',
+    email: 'cliente@mail.com',
+    phoneNumber: '+593999999999',
+    main_street: 'Av. Interoceánica',
+    secondary_street: 'Calle 10',
+    house_number: 'N10-25',
+    city: 'Quito',
+    state: 'Pichincha',
+    postalCode: '170101',
+    customerId: 'cli-001',
+    items: [
+      {
+        kind: 'service',
+        product_name: 'sku-001',
+        name_snapshot: 'Servicio demo',
+        quantity: 1,
+        unit_price: 100,
+        total_price: 100
+      }
+    ],
+    subtotal: 100,
+    iva: 15,
+    reference: 'Pago orden 1001'
+  }
+
+  console.log('--- INICIANDO PETICIÓN API PREPARE ---')
+  console.log('URL:', 'https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod/prepare')
+  console.log('Payload:', JSON.stringify(payload, null, 2))
+
+  try {
+    const response = await fetch('https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod/prepare', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    console.log('Status Code:', response.status)
+    console.log('Status Text:', response.statusText)
+
+    const data = await response.json()
+    apiResponse.value = data
+    console.log('Respuesta Exitosa (Data):', JSON.stringify(data, null, 2))
+    console.log('--- FIN DE PETICIÓN ---')
+  } catch (error: any) {
+    apiResponse.value = { error: error.message }
+    console.error('--- ERROR EN PETICIÓN ---')
+    console.error('Mensaje de Error:', error.message)
+    console.error('Error Detallado:', error)
+  } finally {
+    isProcessing.value = false
+  }
+}
 </script>
 
 <template>
@@ -50,6 +117,27 @@ const { t } = useTemplate()
                             <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">
                                 {{ t('landing_trust_badge_text') }}
                             </p>
+                        </div>
+                    </div>
+
+                    <!-- DEBUG API BUTTON -->
+                    <div class="mt-4 pt-4 border-t border-gray-200/50">
+                        <UButton 
+                          @click="testPrepareApi" 
+                          color="neutral" 
+                          variant="ghost" 
+                          class="rounded-2xl py-3 font-bold border border-gray-200"
+                          :loading="isProcessing && apiResponse === 'Procesando...'"
+                        >
+                          <template #leading>
+                            <UIcon name="i-heroicons-beaker-solid" class="text-primary" />
+                          </template>
+                          Probar API Prepare
+                        </UButton>
+                        
+                        <div v-if="apiResponse" class="mt-4 text-left">
+                          <p class="text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest pl-1">Respuesta del Servidor:</p>
+                          <pre class="p-4 bg-gray-900 text-green-400 text-[10px] rounded-xl overflow-auto max-h-40 border border-white/10 shadow-inner mono">{{ JSON.stringify(apiResponse, null, 2) }}</pre>
                         </div>
                     </div>
 
