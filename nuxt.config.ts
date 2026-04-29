@@ -8,5 +8,9 @@ export default defineNuxtConfig({
 
   ui: {
     colorMode: false,
+  },
+
+  runtimeConfig: {
+    payphoneApiUrl: 'https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod',
   }
 })

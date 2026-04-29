@@ -1,22 +1,71 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from '#imports'
 import { useCart } from '~/composables/useCart'
-import { useRouter } from '#app'
 
-// Manejador del paso actual (1 = Resumen, 2 = Dirección, 3 = Pago)
 const currentStep = ref(1)
 
 const { cart, cartTotal, cartCount, updateQuantity, removeFromCart } = useCart()
-const router = useRouter()
 
-// Datos Simulados
-const provincias = ['Guayas', 'Pichincha', 'Azuay']
-const cantones = ['Guayaquil', 'Samborondón', 'Daule', 'Quito', 'Cuenca']
-const parroquias = ['Tarqui', 'Pascuales', 'Ximena', 'Letamendi']
+type LocationOption = { label: string; value: string }
+
+const provincias = ref<LocationOption[]>([])
+const cantones = ref<LocationOption[]>([])
+const parroquias = ref<LocationOption[]>([])
+const loadingProvincias = ref(false)
+const loadingCantones = ref(false)
+const loadingParroquias = ref(false)
+
+const getProvincias = async () => {
+  loadingProvincias.value = true
+  try {
+    provincias.value = await fetch('/api/location/provincias').then(r => r.json())
+  } catch (e) {
+    console.error('Error cargando provincias', e)
+  } finally {
+    loadingProvincias.value = false
+  }
+}
+
+const getCantones = async (provinciaId: string) => {
+  cantones.value = []
+  parroquias.value = []
+  if (!provinciaId) return
+  loadingCantones.value = true
+  try {
+    cantones.value = await fetch('/api/location/cantones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sub_1: provinciaId }),
+    }).then(r => r.json())
+  } catch (e) {
+    console.error('Error cargando cantones', e)
+  } finally {
+    loadingCantones.value = false
+  }
+}
+
+const getParroquias = async (cantonId: string) => {
+  parroquias.value = []
+  if (!cantonId) return
+  loadingParroquias.value = true
+  try {
+    parroquias.value = await fetch('/api/location/parroquias', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sub_2: cantonId }),
+    }).then(r => r.json())
+  } catch (e) {
+    console.error('Error cargando parroquias', e)
+  } finally {
+    loadingParroquias.value = false
+  }
+}
 
 const form = ref({
   firstName: '',
   lastName: '',
+  email: '',
+  documentNumber: '',
   phone: '',
   provincia: '',
   canton: '',
@@ -36,17 +85,17 @@ const handleMapConfirm = (coords: { lat: number, lng: number }) => {
   isEditingMap.value = false
 }
 
-// Persistencia
-onMounted(() => {
+// Evita que los watches de cascade reseteen los valores al restaurar el form
+const isRestoringForm = ref(true)
+
+onMounted(async () => {
   const savedStep = localStorage.getItem('bio_checkout_step')
   if (savedStep) {
     const stepVal = parseInt(savedStep, 10)
-    // Solo restauramos el paso si el carrito NO esta vacio para evitar saltos raros
     if (stepVal > 1 && cartCount.value > 0) {
       currentStep.value = stepVal
     }
   }
-
   const savedForm = localStorage.getItem('bio_checkout_form')
   if (savedForm) {
     try {
@@ -55,6 +104,18 @@ onMounted(() => {
       console.error('Error loading checkout form from localStorage', e)
     }
   }
+
+  await getProvincias()
+
+  // Restaura la cadena provincia → canton → parroquia si el form tenía valores guardados
+  if (form.value.provincia) {
+    await getCantones(form.value.provincia)
+    if (form.value.canton) {
+      await getParroquias(form.value.canton)
+    }
+  }
+
+  isRestoringForm.value = false
 })
 
 watch(currentStep, (newStep) => {
@@ -65,24 +126,139 @@ watch(form, (newForm) => {
   localStorage.setItem('bio_checkout_form', JSON.stringify(newForm))
 }, { deep: true })
 
-const isProcessing = ref(false)
-
-const handlePayment = () => {
-  if (cartCount.value === 0) return
-  
-  isProcessing.value = true
-  // Simulando procesamiento con PayPhone
-  setTimeout(() => {
-    isProcessing.value = false
-    router.push('/checkout/success')
-  }, 2500)
-}
-
-// Prevenir que se queden en un step avanzado si vacian el carrito a 0 manualmente
 watch(cartCount, (newCount) => {
   if (newCount === 0 && currentStep.value > 1) {
     currentStep.value = 1
   }
+})
+
+watch(() => form.value.provincia, async (id: string) => {
+  if (isRestoringForm.value) return
+  form.value.canton = ''
+  form.value.parroquia = ''
+  await getCantones(id)
+})
+
+watch(() => form.value.canton, async (id: string) => {
+  if (isRestoringForm.value) return
+  form.value.parroquia = ''
+  await getParroquias(id)
+})
+
+// ── Payphone ──────────────────────────────────────────────────────────────────
+
+const isProcessing = ref(false)
+const payphoneError = ref('')
+
+const formatPhone = (phone: string) => {
+  const clean = phone.replace(/\s/g, '')
+  if (clean.startsWith('+')) return clean
+  if (clean.startsWith('0')) return `+593${clean.slice(1)}`
+  return `+593${clean}`
+}
+
+const loadPayphoneAssets = (): Promise<void> =>
+  new Promise((resolve, reject) => {
+    if ((window as any).PPaymentButtonBox) { resolve(); return }
+
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css'
+    document.head.appendChild(link)
+
+    const script = document.createElement('script')
+    script.src = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('No se pudo cargar el script de Payphone'))
+    document.head.appendChild(script)
+  })
+
+const initPayphone = async () => {
+  if (cartCount.value === 0) return
+
+  isProcessing.value = true
+  payphoneError.value = ''
+
+  try {
+    const subtotal = cartTotal.value
+    const iva = 0 // servicios de salud, IVA 0%
+
+    const items = cart.value.map(item => ({
+      kind: 'service',
+      product_name: String(item.id),
+      name_snapshot: item.title,
+      quantity: item.quantity,
+      unit_price: item.price,
+      total_price: item.price * item.quantity,
+    }))
+
+    const res = await fetch('/api/prepare-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_module: 'store',
+        full_name: `${form.value.firstName} ${form.value.lastName}`.trim() || 'Cliente',
+        document_number: form.value.documentNumber || '0000000000',
+        email: form.value.email,
+        phoneNumber: formatPhone(form.value.phone),
+        main_street: form.value.callePrincipal,
+        secondary_street: form.value.calleSecundaria,
+        house_number: '',
+        city: cantones.value.find((c: LocationOption) => c.value === form.value.canton)?.label ?? form.value.canton,
+        state: provincias.value.find((p: LocationOption) => p.value === form.value.provincia)?.label ?? form.value.provincia,
+        postalCode: '000000',
+        customerId: form.value.email || `cli-${Date.now()}`,
+        items,
+        subtotal,
+        iva,
+        reference: 'Pedido BioCenter',
+      }),
+    })
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({})) as { message?: string }
+      throw new Error(err.message ?? `HTTP ${res.status}`)
+    }
+
+    const data = await res.json() as {
+      clientTransactionId: string
+      token: string
+      amount?: number
+      storeId?: number
+    }
+
+    await loadPayphoneAssets()
+    await nextTick()
+
+    // Limpiar instancia anterior si el usuario regresa al step 3
+    const container = document.getElementById('pp-button')
+    if (container) container.innerHTML = ''
+
+    const totalCentavos = data.amount ?? Math.round((subtotal + iva) * 100)
+
+    new (window as any).PPaymentButtonBox({
+      token: data.token,
+      clientTransactionId: data.clientTransactionId,
+      amount: totalCentavos,
+      amountWithoutTax: totalCentavos,
+      amountWithTax: 0,
+      tax: 0,
+      currency: 'USD',
+      ...(data.storeId ? { storeId: data.storeId } : {}),
+      reference: 'Pedido BioCenter',
+      lang: 'es',
+      defaultCardType: 'credit',
+    }).render('pp-button')
+  } catch (err: any) {
+    payphoneError.value = err?.data?.message ?? 'Error al preparar el pago. Intenta nuevamente.'
+    console.error('[Payphone]', err)
+  } finally {
+    isProcessing.value = false
+  }
+}
+
+watch(currentStep, async (step) => {
+  if (step === 3) await initPayphone()
 })
 </script>
 
@@ -212,8 +388,7 @@ watch(cartCount, (newCount) => {
           <div v-show="currentStep === 2" class="animate-[fade-in_0.4s_ease-out]">
             <UForm :state="form" @submit="currentStep = 3" class="space-y-6">
               
-              <!-- Información Personal (Comentado temporalmente) -->
-              <!-- 
+              <!-- Información Personal -->
               <UCard class="rounded-2xl shadow-sm border border-gray-100">
                 <template #header>
                   <div class="flex items-center gap-3">
@@ -230,12 +405,17 @@ watch(cartCount, (newCount) => {
                   <UFormField name="lastName" label="Apellidos" required>
                     <UInput v-model="form.lastName" placeholder="Ej: Pérez" variant="soft" size="lg" class="w-full" />
                   </UFormField>
+                  <UFormField name="email" label="Correo Electrónico" required>
+                    <UInput v-model="form.email" type="email" placeholder="correo@ejemplo.com" variant="soft" size="lg" class="w-full" />
+                  </UFormField>
+                  <UFormField name="documentNumber" label="Cédula / RUC">
+                    <UInput v-model="form.documentNumber" placeholder="Ej: 0912345678" variant="soft" size="lg" class="w-full" />
+                  </UFormField>
                   <UFormField name="phone" label="Teléfono / WhatsApp" required class="md:col-span-2">
                     <UInput v-model="form.phone" type="tel" placeholder="099xxxxxxx" variant="soft" size="lg" class="w-full" />
                   </UFormField>
                 </div>
               </UCard>
-              -->
 
               <!-- Dirección de Entrega -->
               <UCard class="rounded-2xl shadow-sm border border-gray-100">
@@ -252,13 +432,45 @@ watch(cartCount, (newCount) => {
                 </template>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                   <UFormField name="provincia" label="Provincia" required>
-                    <USelect v-model="form.provincia" :options="provincias" placeholder="Selecciona provincia" variant="soft" size="lg" class="w-full" />
+                    <USelect
+                      v-model="form.provincia"
+                      :items="provincias"
+                      value-key="value"
+                      label-key="label"
+                      :loading="loadingProvincias"
+                      placeholder="Selecciona provincia"
+                      variant="soft"
+                      size="lg"
+                      class="w-full"
+                    />
                   </UFormField>
                   <UFormField name="canton" label="Cantón" required>
-                    <USelect v-model="form.canton" :options="cantones" placeholder="Selecciona cantón" variant="soft" size="lg" class="w-full" />
+                    <USelect
+                      v-model="form.canton"
+                      :items="cantones"
+                      value-key="value"
+                      label-key="label"
+                      :loading="loadingCantones"
+                      :disabled="!form.provincia || loadingCantones"
+                      placeholder="Selecciona cantón"
+                      variant="soft"
+                      size="lg"
+                      class="w-full"
+                    />
                   </UFormField>
-                  <UFormField name="parroquia" label="Parroquia" required class="md:col-span-2">
-                    <USelect v-model="form.parroquia" :options="parroquias" placeholder="Selecciona parroquia (Opcional)" variant="soft" size="lg" class="w-full" />
+                  <UFormField name="parroquia" label="Parroquia" class="md:col-span-2">
+                    <USelect
+                      v-model="form.parroquia"
+                      :items="parroquias"
+                      value-key="value"
+                      label-key="label"
+                      :loading="loadingParroquias"
+                      :disabled="!form.canton || loadingParroquias"
+                      placeholder="Selecciona parroquia (Opcional)"
+                      variant="soft"
+                      size="lg"
+                      class="w-full"
+                    />
                   </UFormField>
                   <UFormField name="callePrincipal" label="Calle Principal" required class="md:col-span-2">
                     <UInput v-model="form.callePrincipal" placeholder="Por ej: Av. Nueve de Octubre" variant="soft" size="lg" class="w-full" />
@@ -360,26 +572,25 @@ watch(cartCount, (newCount) => {
                 <p class="text-gray-500 mb-10 max-w-sm mx-auto">Estas a un paso de completar tu salud. Paga con cualquier tarjeta a través de nuestra pasarela ultra-segura.</p>
                 
                 <div class="max-w-md mx-auto">
-                  <!-- Billeton Payphone Nativo -->
-                  <button
-                    :disabled="isProcessing"
-                    @click="handlePayment"
-                    class="w-full relative overflow-hidden group flex items-center justify-center gap-3 rounded-[2rem] py-5 text-lg font-black tracking-tight shadow-2xl shadow-orange-500/30 text-white transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1"
-                    style="background: linear-gradient(90deg, #fb923c, #ea580c);"
-                  >
-                    <!-- Animacion Shine (Luz que pasa) -->
-                    <div class="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 opacity-20 group-hover:animate-[shine_1s]" style="background: linear-gradient(to right, transparent, white);"></div>
-                    
-                    <template v-if="!isProcessing">
-                      <UIcon name="i-heroicons-credit-card-solid" class="w-7 h-7" />
-                      Pagar ${{ cartTotal.toFixed(2) }}
-                    </template>
-                    <template v-else>
-                      <UIcon name="i-heroicons-arrow-path-20-solid" class="w-6 h-6 animate-spin" />
-                      Aprobando transacción...
-                    </template>
-                  </button>
-                  <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs font-bold text-gray-400 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <!-- Estado: cargando prepare -->
+                  <div v-if="isProcessing" class="flex flex-col items-center gap-4 py-6">
+                    <UIcon name="i-heroicons-arrow-path-20-solid" class="w-10 h-10 text-primary animate-spin" />
+                    <p class="text-gray-500 font-medium">Preparando tu pago seguro...</p>
+                  </div>
+
+                  <!-- Estado: error en prepare -->
+                  <div v-else-if="payphoneError" class="flex flex-col items-center gap-4 py-6">
+                    <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-10 h-10 text-red-400" />
+                    <p class="text-red-500 font-bold text-sm">{{ payphoneError }}</p>
+                    <UButton color="primary" variant="soft" class="rounded-full px-6" @click="initPayphone">
+                      Reintentar
+                    </UButton>
+                  </div>
+
+                  <!-- Contenedor del botón Payphone (PPaymentButtonBox renderiza aquí) -->
+                  <div id="pp-button" :class="{ hidden: isProcessing || !!payphoneError }" />
+
+                  <div v-if="!isProcessing && !payphoneError" class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs font-bold text-gray-400 bg-gray-50 rounded-xl p-3 border border-gray-100">
                     <span class="flex items-center gap-1"><UIcon name="i-heroicons-shield-check-solid" class="text-green-500" /> Encriptación 256-bit</span>
                     <span class="text-gray-300 hidden sm:block">|</span>
                     <span class="flex items-center gap-1"><UIcon name="i-heroicons-check-badge-solid" class="text-primary" /> Verified by Visa / MC</span>
