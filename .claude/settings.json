@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://raw.githubusercontent.com/payphoneEC/ApiConnectionExample/master/src/providers/login/login.ts\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/payphoneEC/ApiConnectionExample/master/src/models/token/token.response.model.ts\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/payphoneEC/ApiConnectionExample/master/src/models/pay/sale-result-response.model.ts\")",
+      "Bash(curl -s \"https://webcache.googleusercontent.com/search?q=cache:docs.payphone.app/cajita-de-pagos-payphone\" -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\")"
+    ]
+  }
+}

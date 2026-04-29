@@ -183,32 +183,15 @@ const initPayphone = async () => {
     const subtotal = cartTotal.value
     const iva = 0 // servicios de salud, IVA 0%
 
-    const items = cart.value.map(item => ({
-      kind: 'service',
-      product_name: String(item.id),
-      name_snapshot: item.title,
-      quantity: item.quantity,
-      unit_price: item.price,
-      total_price: item.price * item.quantity,
-    }))
-
     const res = await fetch('/api/prepare-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        source_module: 'store',
-        full_name: `${form.value.firstName} ${form.value.lastName}`.trim() || 'Cliente',
-        document_number: form.value.documentNumber || '0000000000',
+        firstName: form.value.firstName || 'Cliente',
+        lastName: form.value.lastName || '',
+        documentId: form.value.documentNumber || '0000000000',
         email: form.value.email,
         phoneNumber: formatPhone(form.value.phone),
-        main_street: form.value.callePrincipal,
-        secondary_street: form.value.calleSecundaria,
-        house_number: '',
-        city: cantones.value.find((c: LocationOption) => c.value === form.value.canton)?.label ?? form.value.canton,
-        state: provincias.value.find((p: LocationOption) => p.value === form.value.provincia)?.label ?? form.value.provincia,
-        postalCode: '000000',
-        customerId: form.value.email || `cli-${Date.now()}`,
-        items,
         subtotal,
         iva,
         reference: 'Pedido BioCenter',
