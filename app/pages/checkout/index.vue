@@ -230,11 +230,16 @@ const handlePaymentPreparation = async () => {
     const container = document.getElementById('pp-button')
     if (container) container.innerHTML = ''
 
-    if (data.status) {
+    if (data.status && data.payWithCard) {
+      // REDIRECCIÓN AUTOMÁTICA AL LINK DE PAGO
+      // Esto evita los problemas de autorización del SDK y es más rápido
+      window.location.href = data.payWithCard
+    } else if (data.status) {
       mountPayphoneSDK(data)
     } else {
       const detail = data.details?.error?.errors?.[0]?.errorDescriptions?.[0] || data.details?.message || 'Error en la preparación'
-      payphoneError.value = `PayPhone: ${detail}`
+      payphoneError.value = `Error: ${detail}`
+      isProcessing.value = false
     }
   } catch (err: any) {
     payphoneError.value = err.response?.data?.message ?? 'Error al preparar el pago. Intenta nuevamente.'
@@ -249,9 +254,11 @@ const mountPayphoneSDK = (data: any) => {
     const container = document.getElementById('pp-button')
     if (container) container.innerHTML = ''
 
+    const config = useRuntimeConfig()
     // @ts-ignore
     const pbox = new (window as any).PPaymentButtonBox({
       token: data.token || data.paymentId,
+      storeId: config.public.payphoneStoreId
     })
     
     pbox.render('pp-button')
