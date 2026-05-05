@@ -47,14 +47,15 @@ export default defineEventHandler(async (event) => {
     const data = response.data;
     console.log('[PayPhone] Respuesta del Proxy AWS:', JSON.stringify(data, null, 2));
     
-    // El proxy suele devolver la respuesta directa de PayPhone
-    // o un objeto con los links
+    // Extraemos la información de la respuesta de PayPhone que viene dentro de payphoneResponse
+    const pp = data.payphoneResponse || {};
+
     return {
-      paymentId: data.paymentId || data.transactionId,
-      token: data.paymentId || data.transactionId,
-      payWithPayPhone: data.payWithPayPhone,
-      payWithCard: data.payWithCard,
-      status: true
+      paymentId: pp.paymentId || pp.transactionId,
+      token: pp.token || pp.paymentId || pp.transactionId,
+      payWithPayPhone: pp.payWithPayPhone,
+      payWithCard: pp.payWithCard,
+      status: data.status
     };
 
   } catch (err: any) {

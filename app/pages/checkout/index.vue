@@ -250,13 +250,15 @@ const mountPayphoneSDK = (data: any) => {
     if (container) container.innerHTML = ''
 
     // @ts-ignore
-    new (window as any).PPaymentButtonBox({
+    const pbox = new (window as any).PPaymentButtonBox({
       token: data.token || data.paymentId,
-      // Al pasar solo el token, el SDK debería entender que es un pago pre-preparado
-    }).render('pp-button')
+    })
+    
+    pbox.render('pp-button')
 
   } catch (err: any) {
     console.error('[Payphone SDK Error]', err)
+    payphoneError.value = 'Error al inicializar el botón de pago.'
   } finally {
     isProcessing.value = false
   }
