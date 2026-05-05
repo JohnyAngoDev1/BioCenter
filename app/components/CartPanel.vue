@@ -62,7 +62,7 @@ const handleCheckout = () => {
             </h4>
             <UButton
               size="xs"
-              color="red"
+              color="error"
               variant="ghost"
               icon="i-heroicons-trash-20-solid"
               class="rounded-lg shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -75,7 +75,7 @@ const handleCheckout = () => {
             <div class="flex items-center gap-1 bg-white rounded-lg p-0.5">
               <UButton
                 size="xs"
-                color="gray"
+                color="neutral"
                 variant="ghost"
                 icon="i-heroicons-minus-20-solid"
                 class="rounded-md"
@@ -84,7 +84,7 @@ const handleCheckout = () => {
               <span class="text-xs font-black min-w-[20px] text-center">{{ item.quantity }}</span>
               <UButton
                 size="xs"
-                color="gray"
+                color="neutral"
                 variant="ghost"
                 icon="i-heroicons-plus-20-solid"
                 class="rounded-md"
@@ -122,7 +122,7 @@ const handleCheckout = () => {
       <UButton
         block
         variant="ghost"
-        color="gray"
+        color="neutral"
         class="rounded-xl font-bold text-sm"
         @click="clearCart"
       >

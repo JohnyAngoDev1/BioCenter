@@ -1,98 +1,65 @@
-const buildUrl = (base: string, params: Record<string, string>) => {
-  const url = new URL(base);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  return url.toString();
-};
+import axios from 'axios';
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-  const body = await readBody(event);
+  const body = await readBody(event).catch(() => ({}));
+  
+  // NUEVA URL DE AWS SEGÚN TU IMAGEN
+  const url = 'https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod/prepare';
 
-  const {
-    payphoneApiUrl,
-    payphoneToken,
-    payphoneStoreId,
-    payphoneResponseUrl,
-    payphoneCancellationUrl,
-  } = config;
+  // Formateamos el payload exactamente como pide el nuevo endpoint
+  const awsPayload = {
+    "source_module": "store",
+    "full_name": body.full_name || "Cliente BioCenter",
+    "document_number": body.documentId || "1723456789", // Documento por defecto si no hay
+    "email": body.email || "cliente@mail.com",
+    "phoneNumber": body.phoneNumber || "+593999999999",
+    "main_street": "Av. Interoceánica", // Valores por defecto requeridos
+    "secondary_street": "Calle 10",
+    "house_number": "N10-25",
+    "city": "Quito",
+    "state": "Pichincha",
+    "postalCode": "170101",
+    "customerId": body.customerId || "cli-001",
+    "items": body.items || [
+      {
+        "kind": "service",
+        "product_name": "sku-001",
+        "name_snapshot": body.reference || "Servicio BioCenter",
+        "quantity": 1,
+        "unit_price": Number(body.subtotal || 0),
+        "total_price": Number(body.subtotal || 0)
+      }
+    ],
+    "subtotal": Number(body.subtotal || 0),
+    "iva": Number(body.iva || 0),
+    "reference": body.reference || "Pago BioCenter"
+  };
 
-  if (
-    !payphoneToken ||
-    !payphoneStoreId ||
-    !payphoneResponseUrl ||
-    !payphoneCancellationUrl
-  ) {
-    throw createError({
-      statusCode: 500,
-      message: "Faltan credenciales de PayPhone",
-    });
-  }
-
-  const clientTransactionId = `BIO-${Date.now()}`;
-  const responseUrl = buildUrl(String(payphoneResponseUrl), {
-    clientTransactionId,
-  });
-  const cancellationUrl = buildUrl(String(payphoneCancellationUrl), {
-    clientTransactionId,
-  });
-
-  // PayPhone: amount = amountWithoutTax + amountWithTax + tax
-  // Servicios de salud gravan IVA 0%: amountWithTax=0, tax=0, todo va en amountWithoutTax
-  const subtotal: number = body.subtotal ?? 0;
-  const ivaBase: number = body.iva ?? 0; // base imponible 12% (0 para salud)
-  const taxAmount: number = body.taxAmount ?? 0; // monto del IVA (0 para salud)
-
-  const amountWithoutTax = Math.round(subtotal * 100); // base exenta / IVA 0%
-  const amountWithTax = Math.round(ivaBase * 100); // base gravada 12%
-  const tax = Math.round(taxAmount * 100); // valor del IVA
-  const amount = amountWithoutTax + amountWithTax + tax; // validación aritmética PayPhone
+  console.log('[PayPhone] Payload a enviar al Proxy AWS:', JSON.stringify(awsPayload, null, 2));
 
   try {
-    const payload = {
-      amount,
-      amountWithoutTax,
-      amountWithTax,
-      tax,
-      service: 0,
-      tip: 0,
-      currency: "USD",
-      storeId: String(payphoneStoreId),
-      clientTransactionId,
-      responseUrl,
-      cancellationUrl,
-      reference: body.reference ?? "Pedido BioCenter",
-      documentId: body.documentId ?? "0000000000",
-      email: body.email ?? "",
-      firstName: body.firstName ?? "Cliente",
-      lastName: body.lastName ?? "",
-      phoneNumber: body.phoneNumber ?? "",
-    };
-
-    console.log(payload);
-
-    const response = await $fetch<Record<string, unknown>>(
-      `${payphoneApiUrl}/Prepare`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${String(payphoneToken).trim()}`,
-        },
-        body: payload,
-      },
-    );
-
-    return { ...response, clientTransactionId };
-  } catch (err: unknown) {
-    const fetchError = err as {
-      data?: unknown;
-      statusCode?: number;
-      message?: string;
-    };
-    throw createError({
-      statusCode: fetchError.statusCode ?? 502,
-      message: "Error al preparar el pago con PayPhone",
-      data: fetchError.data,
+    const response = await axios.post(url, awsPayload, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
+
+    const data = response.data;
+    console.log('[PayPhone] Respuesta del Proxy AWS:', JSON.stringify(data, null, 2));
+    
+    // El proxy suele devolver la respuesta directa de PayPhone
+    // o un objeto con los links
+    return {
+      paymentId: data.paymentId || data.transactionId,
+      token: data.paymentId || data.transactionId,
+      payWithPayPhone: data.payWithPayPhone,
+      payWithCard: data.payWithCard,
+      status: true
+    };
+
+  } catch (err: any) {
+    const errorData = err.response?.data || err.message;
+    console.error('[AWS Proxy Error]:', JSON.stringify(errorData, null, 2));
+    return { status: false, details: errorData };
   }
 });

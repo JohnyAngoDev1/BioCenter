@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import axios from 'axios'
 import { ref, watch, onMounted, nextTick } from '#imports'
 import { useCart } from '~/composables/useCart'
 
+const config = useRuntimeConfig()
 const currentStep = ref(1)
 
 const { cart, cartTotal, cartCount, updateQuantity, removeFromCart } = useCart()
@@ -18,7 +20,8 @@ const loadingParroquias = ref(false)
 const getProvincias = async () => {
   loadingProvincias.value = true
   try {
-    provincias.value = await fetch('/api/location/provincias').then(r => r.json())
+    const { data } = await axios.get('/api/location/provincias')
+    provincias.value = data
   } catch (e) {
     console.error('Error cargando provincias', e)
   } finally {
@@ -32,11 +35,8 @@ const getCantones = async (provinciaId: string) => {
   if (!provinciaId) return
   loadingCantones.value = true
   try {
-    cantones.value = await fetch('/api/location/cantones', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sub_1: provinciaId }),
-    }).then(r => r.json())
+    const { data } = await axios.post('/api/location/cantones', { sub_1: provinciaId })
+    cantones.value = data
   } catch (e) {
     console.error('Error cargando cantones', e)
   } finally {
@@ -49,11 +49,8 @@ const getParroquias = async (cantonId: string) => {
   if (!cantonId) return
   loadingParroquias.value = true
   try {
-    parroquias.value = await fetch('/api/location/parroquias', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sub_2: cantonId }),
-    }).then(r => r.json())
+    const { data } = await axios.post('/api/location/parroquias', { sub_2: cantonId })
+    parroquias.value = data
   } catch (e) {
     console.error('Error cargando parroquias', e)
   } finally {
@@ -151,10 +148,13 @@ const isProcessing = ref(false)
 const payphoneError = ref('')
 
 const formatPhone = (phone: string) => {
-  const clean = phone.replace(/\s/g, '')
-  if (clean.startsWith('+')) return clean
-  if (clean.startsWith('0')) return `+593${clean.slice(1)}`
-  return `+593${clean}`
+  if (!phone) return '593999999999'
+  // Eliminar todo lo que no sea número (quita el + y espacios)
+  let clean = phone.replace(/\D/g, '')
+  // Si empieza con 0 (ej: 099...), quitamos el 0
+  if (clean.startsWith('0')) clean = clean.slice(1)
+  // Si no tiene el 593, lo ponemos
+  return `+${clean.startsWith('593') ? clean : `593${clean.startsWith('0') ? clean.substring(1) : clean}`}`
 }
 
 const loadPayphoneAssets = (): Promise<void> =>
@@ -173,43 +173,55 @@ const loadPayphoneAssets = (): Promise<void> =>
     document.head.appendChild(script)
   })
 
-const initPayphone = async () => {
+const handlePaymentPreparation = async () => {
   if (cartCount.value === 0) return
 
   isProcessing.value = true
   payphoneError.value = ''
 
   try {
-    const subtotal = cartTotal.value
-    const iva = 0 // servicios de salud, IVA 0%
+    // HACK TEMPORAL PARA PROBAR: Forzamos 0.01 de IVA y ajustamos subtotal
+    const realTotal = cartTotal.value
+    const iva = 0.01
+    const subtotal = Math.max(0, realTotal - iva)
 
-    const res = await fetch('/api/prepare-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstName: form.value.firstName || 'Cliente',
-        lastName: form.value.lastName || '',
-        documentId: form.value.documentNumber || '0000000000',
-        email: form.value.email,
-        phoneNumber: formatPhone(form.value.phone),
-        subtotal,
-        iva,
-        reference: 'Pedido BioCenter',
-      }),
+    // Ajustamos el precio de los items para que sumen exactamente el subtotal
+    const items = cart.value.map((item, index) => {
+      let price = Number(item.price)
+      // Restamos el centavo solo al primer item
+      if (index === 0) price = Math.max(0, price - 0.01)
+      
+      return {
+        kind: 'service',
+        product_name: item.id || 'service',
+        name_snapshot: item.title,
+        quantity: 1,
+        unit_price: price,
+        total_price: price
+      }
     })
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({})) as { message?: string }
-      throw new Error(err.message ?? `HTTP ${res.status}`)
-    }
+    const { data } = await axios.post('/api/prepare-payment', {
+      source_module: 'store',
+      full_name: `${form.value.firstName} ${form.value.lastName}`.trim() || 'Cliente BioCenter',
+      document_number: form.value.documentNumber || '1700000000',
+      email: form.value.email,
+      phoneNumber: formatPhone(form.value.phone),
+      main_street: 'Av. Principal',
+      secondary_street: 'S/N',
+      house_number: '000',
+      city: 'Quito',
+      state: 'Pichincha',
+      postalCode: '170101',
+      customerId: form.value.email,
+      items: items,
+      subtotal: subtotal,
+      iva: iva,
+      reference: `Pedido BioCenter - ${form.value.lastName}`
+    })
 
-    const data = await res.json() as {
-      clientTransactionId: string
-      token: string
-      amount?: number
-      storeId?: number
-    }
-
+    const totalCentavos = Math.round((subtotal + iva) * 100)
+    
     await loadPayphoneAssets()
     await nextTick()
 
@@ -217,31 +229,35 @@ const initPayphone = async () => {
     const container = document.getElementById('pp-button')
     if (container) container.innerHTML = ''
 
-    const totalCentavos = data.amount ?? Math.round((subtotal + iva) * 100)
-
-    new (window as any).PPaymentButtonBox({
-      token: data.token,
-      clientTransactionId: data.clientTransactionId,
-      amount: totalCentavos,
-      amountWithoutTax: totalCentavos,
-      amountWithTax: 0,
-      tax: 0,
-      currency: 'USD',
-      ...(data.storeId ? { storeId: data.storeId } : {}),
-      reference: 'Pedido BioCenter',
-      lang: 'es',
-      defaultCardType: 'credit',
-    }).render('pp-button')
+    mountPayphoneSDK(data, totalCentavos)
   } catch (err: any) {
-    payphoneError.value = err?.data?.message ?? 'Error al preparar el pago. Intenta nuevamente.'
+    payphoneError.value = err.response?.data?.message ?? 'Error al preparar el pago. Intenta nuevamente.'
     console.error('[Payphone]', err)
   } finally {
     isProcessing.value = false
   }
 }
 
+const mountPayphoneSDK = (data: any) => {
+  try {
+    const container = document.getElementById('pp-button')
+    if (container) container.innerHTML = ''
+
+    // @ts-ignore
+    new (window as any).PPaymentButtonBox({
+      token: data.token || data.paymentId,
+      // Al pasar solo el token, el SDK debería entender que es un pago pre-preparado
+    }).render('pp-button')
+
+  } catch (err: any) {
+    console.error('[Payphone SDK Error]', err)
+  } finally {
+    isProcessing.value = false
+  }
+}
+
 watch(currentStep, async (step) => {
-  if (step === 3) await initPayphone()
+  if (step === 3) await handlePaymentPreparation()
 })
 </script>
 
@@ -483,7 +499,7 @@ watch(currentStep, async (step) => {
                             <span class="text-xs font-black uppercase tracking-widest">Ubicación Fijada</span>
                           </div>
                           <UButton 
-                            color="white" 
+                            color="neutral" 
                             variant="solid" 
                             size="xs" 
                             class="rounded-full px-4 font-black pointer-events-auto shadow-xl"
@@ -565,7 +581,7 @@ watch(currentStep, async (step) => {
                   <div v-else-if="payphoneError" class="flex flex-col items-center gap-4 py-6">
                     <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-10 h-10 text-red-400" />
                     <p class="text-red-500 font-bold text-sm">{{ payphoneError }}</p>
-                    <UButton color="primary" variant="soft" class="rounded-full px-6" @click="initPayphone">
+                    <UButton color="primary" variant="soft" class="rounded-full px-6" @click="handlePaymentPreparation">
                       Reintentar
                     </UButton>
                   </div>
