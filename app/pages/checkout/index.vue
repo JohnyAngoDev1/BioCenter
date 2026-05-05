@@ -148,13 +148,14 @@ const isProcessing = ref(false)
 const payphoneError = ref('')
 
 const formatPhone = (phone: string) => {
-  if (!phone) return '593999999999'
-  // Eliminar todo lo que no sea número (quita el + y espacios)
+  if (!phone) return '+593999999999'
   let clean = phone.replace(/\D/g, '')
-  // Si empieza con 0 (ej: 099...), quitamos el 0
-  if (clean.startsWith('0')) clean = clean.slice(1)
-  // Si no tiene el 593, lo ponemos
-  return `+${clean.startsWith('593') ? clean : `593${clean.startsWith('0') ? clean.substring(1) : clean}`}`
+  // Si tiene 10 dígitos y empieza con 0 (ej: 0995254897), quitamos el 0
+  if (clean.length === 10 && clean.startsWith('0')) clean = clean.slice(1)
+  // Si ya tiene el 593 al principio (ej: 593995254897), quitamos el 593 para dejar solo los 9 dígitos
+  if (clean.startsWith('593')) clean = clean.slice(3)
+  
+  return `+593${clean}`
 }
 
 const loadPayphoneAssets = (): Promise<void> =>
@@ -229,7 +230,12 @@ const handlePaymentPreparation = async () => {
     const container = document.getElementById('pp-button')
     if (container) container.innerHTML = ''
 
-    mountPayphoneSDK(data, totalCentavos)
+    if (data.status) {
+      mountPayphoneSDK(data)
+    } else {
+      const detail = data.details?.error?.errors?.[0]?.errorDescriptions?.[0] || data.details?.message || 'Error en la preparación'
+      payphoneError.value = `PayPhone: ${detail}`
+    }
   } catch (err: any) {
     payphoneError.value = err.response?.data?.message ?? 'Error al preparar el pago. Intenta nuevamente.'
     console.error('[Payphone]', err)
