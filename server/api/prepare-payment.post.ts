@@ -45,17 +45,24 @@ export default defineEventHandler(async (event) => {
     });
 
     const data = response.data;
-    console.log('[PayPhone] Respuesta del Proxy AWS:', JSON.stringify(data, null, 2));
+    console.log('[PayPhone] Respuesta completa del Proxy AWS:', JSON.stringify(data, null, 2));
     
-    // Extraemos la información de la respuesta de PayPhone que viene dentro de payphoneResponse
-    const pp = data.payphoneResponse || {};
+    // Intentamos obtener los datos de PayPhone de varias formas posibles
+    // Algunos proxies devuelven la respuesta en 'payphoneResponse', otros en la raíz
+    const pp = data.payphoneResponse || data.data || data;
+
+    // Extraemos el ID del pago (puede llamarse de varias formas)
+    const paymentId = pp.paymentId || pp.transactionId || pp.id;
+    const token = pp.token || paymentId;
 
     return {
-      paymentId: pp.paymentId || pp.transactionId,
-      token: pp.token || pp.paymentId || pp.transactionId,
-      payWithPayPhone: pp.payWithPayPhone,
-      payWithCard: pp.payWithCard,
-      status: data.status
+      paymentId: paymentId,
+      token: token,
+      payWithPayPhone: pp.payWithPayPhone || pp.payWithPayphone,
+      payWithCard: pp.payWithCard || pp.payWithCardUrl,
+      status: data.status !== undefined ? data.status : (pp.status || !!paymentId),
+      // Enviamos el objeto completo para debug si es necesario
+      raw: pp
     };
 
   } catch (err: any) {
