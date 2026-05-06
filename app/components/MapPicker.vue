@@ -6,6 +6,14 @@ const props = defineProps({
   isCompact: {
     type: Boolean,
     default: false
+  },
+  initialLat: {
+    type: Number,
+    default: -2.1702
+  },
+  initialLng: {
+    type: Number,
+    default: -79.9223
   }
 })
 
@@ -15,9 +23,9 @@ const mapContainer = ref<HTMLElement | null>(null)
 let map: any = null
 let marker: any = null
 
-// Coordenadas iniciales (Ecuador - Guayaquil aprox por defecto)
-const lat = ref(-2.1702)
-const lng = ref(-79.9223)
+// Coordenadas internas (se inicializan con las props)
+const lat = ref(props.initialLat)
+const lng = ref(props.initialLng)
 
 onMounted(async () => {
   console.log('[MapPicker] Componente montado. Iniciando carga de Leaflet...')
@@ -84,6 +92,11 @@ onMounted(async () => {
     // Forzar el redibujado por si acaso
     map.invalidateSize()
     console.log('[MapPicker] Mapa renderizado y listo.')
+
+    // Si no hay coordenadas previas (es el default) y no es compacto, intentar auto-localizar
+    if (props.initialLat === -2.1702 && !props.isCompact) {
+      locateMe()
+    }
   }, 200)
 })
 
@@ -94,7 +107,38 @@ onUnmounted(() => {
   }
 })
 
+const isLocating = ref(false)
+
+const locateMe = () => {
+  if (!navigator.geolocation) {
+    alert('Tu navegador no soporta geolocalización')
+    return
+  }
+
+  isLocating.value = true
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords
+      if (map) {
+        map.setView([latitude, longitude], 18)
+      }
+      isLocating.value = false
+    },
+    (error) => {
+      console.error('[MapPicker] Error en geolocalización:', error)
+      alert('No pudimos obtener tu ubicación. Por favor, asegúrate de dar permisos de GPS.')
+      isLocating.value = false
+    },
+    { enableHighAccuracy: true }
+  )
+}
+
 const handleConfirm = () => {
+  if (map) {
+    const center = map.getCenter()
+    lat.value = center.lat
+    lng.value = center.lng
+  }
   console.log('[MapPicker] Ubicación confirmada:', { lat: lat.value, lng: lng.value })
   emit('confirm', { lat: lat.value, lng: lng.value })
 }
@@ -109,6 +153,19 @@ const handleConfirm = () => {
       <!-- Loader visual sutil mientras Leaflet se inicializa -->
       <div v-if="!map" class="absolute inset-0 flex items-center justify-center bg-gray-50/50">
         <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin text-primary text-2xl" />
+      </div>
+
+      <!-- Botón Mi Ubicación (Top Right - Más discreto) -->
+      <div v-if="!isCompact && map" class="absolute top-4 right-4 z-[1001]">
+        <UTooltip text="Usar mi ubicación actual">
+          <UButton
+            color="primary"
+            icon="i-heroicons-cursor-arrow-rays-20-solid"
+            class="rounded-xl shadow-xl border border-gray-100 hover:bg-gray-50 transition-all p-2.5"
+            :loading="isLocating"
+            @click="locateMe"
+          />
+        </UTooltip>
       </div>
       
       <!-- Overlay de bloque para modo compacto -->

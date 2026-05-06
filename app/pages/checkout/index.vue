@@ -211,19 +211,24 @@ const handlePaymentPreparation = async () => {
       }
     })
 
+    const provinciaLabel = provincias.value.find(p => p.value === form.value.provincia)?.label || 'Pichincha'
+    const cantonLabel = cantones.value.find(c => c.value === form.value.canton)?.label || 'Quito'
+
     const { data } = await axios.post('/api/prepare-payment', {
       source_module: 'store',
       full_name: `${form.value.firstName} ${form.value.lastName}`.trim() || 'Cliente BioCenter',
       document_number: form.value.documentNumber || '1700000000',
       email: form.value.email,
       phoneNumber: formatPhone(form.value.phone),
-      main_street: 'Av. Principal',
-      secondary_street: 'S/N',
-      house_number: '000',
-      city: 'Quito',
-      state: 'Pichincha',
+      main_street: form.value.callePrincipal || 'Av. Principal',
+      secondary_street: form.value.calleSecundaria || 'S/N',
+      house_number: '000', // Podrías añadir un campo si fuera necesario
+      city: cantonLabel,
+      state: provinciaLabel,
       postalCode: '170101',
       customerId: form.value.email,
+      lat: form.value.lat,
+      lng: form.value.lng,
       items: items,
       subtotal: subtotal,
       iva: iva,
@@ -521,7 +526,7 @@ watch(currentStep, async (step) => {
                     <div v-if="form.lat && !isEditingMap" class="animate-[fade-in_0.4s_ease-out]">
                       <div class="relative group">
                         <ClientOnly>
-                          <MapPicker :is-compact="true" />
+                          <MapPicker :is-compact="true" :initial-lat="form.lat || -2.1702" :initial-lng="form.lng || -78.4678" />
                         </ClientOnly>
                         
                         <!-- Overlay de Información y Acción -->
@@ -564,7 +569,7 @@ watch(currentStep, async (step) => {
                         Para una entrega ultra-rápida, sitúa el pin esmeralda justo sobre la entrada de tu casa o negocio.
                       </p>
                       <ClientOnly>
-                        <MapPicker :is-compact="false" @confirm="handleMapConfirm" />
+                        <MapPicker :is-compact="false" :initial-lat="form.lat || -2.1702" :initial-lng="form.lng || -78.4678" @confirm="handleMapConfirm" />
                       </ClientOnly>
                     </div>
                   </div>
