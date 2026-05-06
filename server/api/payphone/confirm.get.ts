@@ -13,18 +13,14 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    /* 
-    // COMENTADO PARA PRUEBAS: Esto es lo que se usará en producción
+    // Llamada real al Proxy de AWS para confirmar el pago
     const confirmUrl = `${config.payphoneApiUrl}/confirm`;
     const response = await axios.get(confirmUrl, {
       params: { orderId, clientTransactionId }
     });
+    
     const data = response.data;
-    */
-
-    // MOCK PARA PRUEBAS: Forzamos el éxito para ver la pantalla de gracias y limpieza de datos
-    const data = { approved: true, message: 'Pago mockeado exitoso' };
-    console.log('[PayPhone Confirm] MODO PRUEBA ACTIVO:', data);
+    console.log('[PayPhone Confirm] Respuesta del Proxy:', data);
 
     if (data.approved === true) {
       return sendRedirect(event, `/payment/success?clientTransactionId=${clientTransactionId}`, 302);

@@ -8,28 +8,19 @@ export default defineEventHandler(async (event) => {
 
   // Formateamos el payload exactamente como pide el nuevo endpoint
   const awsPayload = {
-    "source_module": "store",
+    "source_module": body.source_module || "store",
     "full_name": body.full_name || "Cliente BioCenter",
-    "document_number": body.documentId || "1723456789", // Documento por defecto si no hay
+    "document_number": body.document_number || body.documentId || "1723456789", 
     "email": body.email || "cliente@mail.com",
     "phoneNumber": body.phoneNumber || "+593999999999",
-    "main_street": "Av. Interoceánica", // Valores por defecto requeridos
-    "secondary_street": "Calle 10",
-    "house_number": "N10-25",
-    "city": "Quito",
-    "state": "Pichincha",
-    "postalCode": "170101",
-    "customerId": body.customerId || "cli-001",
-    "items": body.items || [
-      {
-        "kind": "service",
-        "product_name": "sku-001",
-        "name_snapshot": body.reference || "Servicio BioCenter",
-        "quantity": 1,
-        "unit_price": Number(body.subtotal || 0),
-        "total_price": Number(body.subtotal || 0)
-      }
-    ],
+    "main_street": body.main_street || "Av. Interoceánica", 
+    "secondary_street": body.secondary_street || "Calle 10",
+    "house_number": body.house_number || "N10-25",
+    "city": body.city || "Quito",
+    "state": body.state || "Pichincha",
+    "postalCode": body.postalCode || "170101",
+    "customerId": body.customerId || body.email || "cli-001",
+    "items": body.items,
     "subtotal": Number(body.subtotal || 0),
     "iva": Number(body.iva || 0),
     "reference": body.reference || "Pago BioCenter",
