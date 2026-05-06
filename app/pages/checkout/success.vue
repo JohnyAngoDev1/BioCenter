@@ -6,7 +6,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      
+
       <h1 class="text-3xl font-bold text-slate-900 mb-2">¡Pago Exitoso!</h1>
       <p class="text-slate-600 mb-8">
         Tu transacción ha sido procesada correctamente. Pronto recibirás un correo con los detalles de tu pedido.
@@ -19,10 +19,8 @@
         </div>
       </div>
 
-      <NuxtLink 
-        to="/" 
-        class="block w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
-      >
+      <NuxtLink to="/"
+        class="block w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg">
         Volver al Inicio
       </NuxtLink>
     </div>
@@ -30,10 +28,25 @@
 </template>
 
 <script setup>
+import { onMounted } from '#imports'
+import { useCart } from '~/composables/useCart'
+
 const route = useRoute()
+const { clearCart } = useCart()
+
 const transactionId = computed(() => route.query.clientTransactionId || 'N/A')
 
-// Aquí podrías añadir lógica para limpiar el carrito si fuera necesario
+onMounted(() => {
+  // 1. Limpiar el carrito
+  clearCart()
+
+  // 2. Limpiar los datos del formulario y el step del checkout
+  localStorage.removeItem('bio_checkout_step')
+  localStorage.removeItem('bio_checkout_form')
+  localStorage.removeItem('biocenter_cart') // Asegurar que la persistencia también se borre
+
+  console.log('[Success] Carrito y datos de checkout limpiados.')
+})
 </script>
 
 <style scoped>
@@ -42,7 +55,14 @@ const transactionId = computed(() => route.query.clientTransactionId || 'N/A')
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

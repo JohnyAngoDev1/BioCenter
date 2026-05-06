@@ -32,7 +32,9 @@ export default defineEventHandler(async (event) => {
     ],
     "subtotal": Number(body.subtotal || 0),
     "iva": Number(body.iva || 0),
-    "reference": body.reference || "Pago BioCenter"
+    "reference": body.reference || "Pago BioCenter",
+    "responseUrl": "https://biocenter.life/api/payphone/confirm",
+    "cancellationUrl": "https://biocenter.life/api/payphone/cancel"
   };
 
   console.log('[PayPhone] Payload a enviar al Proxy AWS:', JSON.stringify(awsPayload, null, 2));

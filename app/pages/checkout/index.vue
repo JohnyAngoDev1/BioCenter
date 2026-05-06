@@ -84,13 +84,25 @@ const handleMapConfirm = (coords: { lat: number, lng: number }) => {
 
 // Evita que los watches de cascade reseteen los valores al restaurar el form
 const isRestoringForm = ref(true)
+const userCancelled = ref(false)
 
 onMounted(async () => {
-  const savedStep = localStorage.getItem('bio_checkout_step')
-  if (savedStep) {
-    const stepVal = parseInt(savedStep, 10)
-    if (stepVal > 1 && cartCount.value > 0) {
-      currentStep.value = stepVal
+  const route = useRoute()
+  
+  if (route.query.status === 'cancel') {
+    // Si viene de una cancelación, nos quedamos en el paso 3 pero mostramos el error
+    // y evitamos la redirección automática inmediata para que el usuario pueda darle a "Reintentar"
+    currentStep.value = 3
+    userCancelled.value = true
+    payphoneError.value = 'El pago no pudo ser procesado o fue cancelado. ¿Deseas intentarlo de nuevo?'
+    localStorage.setItem('bio_checkout_step', '3')
+  } else {
+    const savedStep = localStorage.getItem('bio_checkout_step')
+    if (savedStep) {
+      const stepVal = parseInt(savedStep, 10)
+      if (stepVal > 1 && cartCount.value > 0) {
+        currentStep.value = stepVal
+      }
     }
   }
   const savedForm = localStorage.getItem('bio_checkout_form')
@@ -181,24 +193,21 @@ const handlePaymentPreparation = async () => {
   payphoneError.value = ''
 
   try {
-    // HACK TEMPORAL PARA PROBAR: Forzamos 0.01 de IVA y ajustamos subtotal
-    const realTotal = cartTotal.value
-    const iva = 0.01
-    const subtotal = Math.max(0, realTotal - iva)
+    // Eliminamos el hack del centavo y usamos los valores reales
+    const subtotal = cartTotal.value
+    const iva = 0 // El Proxy de AWS ya calcula el IVA automáticamente
 
-    // Ajustamos el precio de los items para que sumen exactamente el subtotal
-    const items = cart.value.map((item, index) => {
-      let price = Number(item.price)
-      // Restamos el centavo solo al primer item
-      if (index === 0) price = Math.max(0, price - 0.01)
+    const items = cart.value.map((item) => {
+      const quantity = Number(item.quantity || 1)
+      const unitPrice = Number(item.price || 0)
       
       return {
         kind: 'service',
         product_name: item.id || 'service',
         name_snapshot: item.title,
-        quantity: 1,
-        unit_price: price,
-        total_price: price
+        quantity: quantity,
+        unit_price: unitPrice,
+        total_price: unitPrice * quantity
       }
     })
 
@@ -272,7 +281,15 @@ const mountPayphoneSDK = (data: any) => {
 }
 
 watch(currentStep, async (step) => {
-  if (step === 3) await handlePaymentPreparation()
+  // Solo preparamos el pago automáticamente si NO venimos de una cancelación reciente
+  if (step === 3) {
+    if (userCancelled.value) {
+      // Reseteamos el flag para que, si el usuario vuelve a entrar manualmente a este paso, sí se dispare
+      userCancelled.value = false
+    } else {
+      await handlePaymentPreparation()
+    }
+  }
 })
 </script>
 
