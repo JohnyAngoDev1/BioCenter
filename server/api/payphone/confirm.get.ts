@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     console.log('[PayPhone Confirm] MODO PRUEBA ACTIVO:', data);
 
     if (data.approved === true) {
-      return sendRedirect(event, `/checkout/success?clientTransactionId=${clientTransactionId}`, 302);
+      return sendRedirect(event, `/payment/success?clientTransactionId=${clientTransactionId}`, 302);
     } else {
       return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(data.message || 'Pago no aprobado')}`, 302);
     }
