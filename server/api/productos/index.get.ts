@@ -1,9 +1,11 @@
+import { buildUrl } from "../../utils/api";
+
 export default defineEventHandler(async (event) => {
-  const token = getCookie(event, "auth_token");
   const config = useRuntimeConfig(event);
+  const token = getCookie(event, "auth_token");
 
   try {
-    return await $fetch<any[]>(`${config.apiUrl}/producto`, {
+    return await $fetch<any[]>(buildUrl(config.apiUrl, "producto"), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
   } catch (error: any) {
