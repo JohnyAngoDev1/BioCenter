@@ -6,8 +6,8 @@ const navItems = [
   { label: "Dashboard", icon: "i-lucide-layout-dashboard", to: "/dashboard" },
   { label: "Productos", icon: "i-lucide-package", to: "/dashboard/productos" },
   { label: "Pedidos", icon: "i-lucide-shopping-bag", to: "/dashboard/pedidos" },
-  { label: "Usuarios", icon: "i-lucide-users", to: "/dashboard/usuarios" },
-  { label: "Pagos", icon: "i-lucide-credit-card", to: "/dashboard/pagos" },
+  // { label: "Usuarios", icon: "i-lucide-users", to: "/dashboard/usuarios" },
+  // { label: "Pagos", icon: "i-lucide-credit-card", to: "/dashboard/pagos" },
 ];
 
 const isActive = (path: string) => {

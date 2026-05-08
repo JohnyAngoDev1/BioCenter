@@ -32,11 +32,17 @@ definePageMeta({ middleware: "auth", layout: "dashboard" });
           </div>
           <div>
             <p class="text-sm font-medium text-gray-500">Pedidos</p>
-            <p class="text-sm text-gray-400">Próximamente</p>
+            <NuxtLink
+              to="/dashboard/pedidos"
+              class="text-sm text-emerald-600 hover:underline"
+            >
+              Ver pedidos →
+            </NuxtLink>
           </div>
         </div>
       </UCard>
 
+      <!-- Usuarios - pendiente de implementar
       <UCard>
         <div class="flex items-center gap-4">
           <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50">
@@ -48,6 +54,7 @@ definePageMeta({ middleware: "auth", layout: "dashboard" });
           </div>
         </div>
       </UCard>
+      -->
     </div>
   </div>
 </template>
