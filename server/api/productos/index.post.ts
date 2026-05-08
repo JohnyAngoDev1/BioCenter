@@ -6,11 +6,12 @@ export default defineEventHandler(async (event) => {
   const token = getCookie(event, "auth_token");
 
   try {
-    return await $fetch<any>(buildUrl(config.apiUrl, "producto"), {
+    const res = await $fetch<any>(buildUrl(config.apiUrl, "producto"), {
       method: "POST",
       body,
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
+    return res?.data ?? res;
   } catch (error: any) {
     throw createError({
       statusCode: error.response?.status ?? 500,

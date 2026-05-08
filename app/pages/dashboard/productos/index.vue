@@ -4,18 +4,28 @@ import type { Producto } from "~/composables/useProductos";
 
 definePageMeta({ middleware: "auth", layout: "dashboard" });
 
-const { getAll, remove } = useProductos();
+const { remove } = useProductos();
 
-const { data: productos, pending, refresh } = await useAsyncData("productos", getAll);
+const {
+  data: productosRaw,
+  pending,
+  error,
+  refresh,
+} = useFetch<Producto[]>("/api/productos", {
+  lazy: true,
+  default: () => [],
+});
 
 const search = ref("");
 const page = ref(1);
 const pageSize = ref(10);
 
+const productos = computed(() => productosRaw.value ?? []);
+
 const filtered = computed(() => {
   const q = search.value.toLowerCase().trim();
-  if (!q) return productos.value ?? [];
-  return (productos.value ?? []).filter(
+  if (!q) return productos.value;
+  return productos.value.filter(
     (p) =>
       p.title.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
@@ -78,6 +88,10 @@ async function confirmDelete() {
       </UButton>
     </div>
 
+    <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      Error al cargar productos: {{ (error as any)?.data?.message ?? error?.message }}
+    </div>
+
     <div class="flex items-center gap-3">
       <UInput
         v-model="search"
@@ -96,7 +110,7 @@ async function confirmDelete() {
       </select>
     </div>
 
-    <UCard :ui="{ body: 'p-0' }">
+    <UCard>
       <UTable :columns="columns" :data="paginated" :loading="pending">
         <template #image-cell="{ row }">
           <div class="py-1">
