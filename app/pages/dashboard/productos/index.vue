@@ -4,16 +4,16 @@ import type { Producto } from "~/composables/useProductos";
 
 definePageMeta({ middleware: "auth", layout: "dashboard" });
 
-const { remove } = useProductos();
+const { getAll, remove } = useProductos();
 
 const {
   data: productosRaw,
   pending,
   error,
   refresh,
-} = useFetch<Producto[]>("/api/productos", {
-  lazy: true,
-  default: () => [],
+} = useAsyncData("productos", getAll, {
+  server: false,
+  default: () => [] as Producto[],
 });
 
 const search = ref("");

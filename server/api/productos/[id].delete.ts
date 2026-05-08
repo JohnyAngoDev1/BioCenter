@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   try {
     return await $fetch<any>(buildUrl(config.apiUrl, `producto/delete/${id}`), {
       method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: token ? { Authorization: token } : {},
     });
   } catch (error: any) {
     throw createError({

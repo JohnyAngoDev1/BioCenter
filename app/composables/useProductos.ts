@@ -11,24 +11,28 @@ export interface Producto {
 }
 
 export function useProductos() {
+  const api = useApi();
   const toast = useToast();
 
-  const getAll = () => $fetch<Producto[]>("/api/productos");
+  const getAll = async (): Promise<Producto[]> => {
+    const res = await api.get("/producto");
+    return res.data?.data ?? res.data;
+  };
 
-  const getById = (id: string) => $fetch<Producto>(`/api/productos/${id}`);
+  const getById = async (id: string): Promise<Producto> => {
+    const res = await api.get(`/producto/${id}`);
+    return res.data?.data ?? res.data;
+  };
 
   const create = async (producto: Omit<Producto, "_id">) => {
     try {
-      const data = await $fetch<Producto>("/api/productos", {
-        method: "POST",
-        body: producto,
-      });
+      const res = await api.post("/producto", producto);
       toast.add({ title: "Producto creado correctamente", color: "success" });
-      return data;
+      return res.data?.data ?? res.data;
     } catch (error: any) {
       toast.add({
         title: "Error al crear producto",
-        description: error?.data?.message ?? error.message,
+        description: error.response?.data?.message ?? error.message,
         color: "error",
       });
       throw error;
@@ -37,16 +41,13 @@ export function useProductos() {
 
   const update = async (id: string, producto: Partial<Producto>) => {
     try {
-      const data = await $fetch<Producto>(`/api/productos/${id}`, {
-        method: "PUT",
-        body: producto,
-      });
+      const res = await api.put(`/producto/update/${id}`, producto);
       toast.add({ title: "Producto actualizado", color: "success" });
-      return data;
+      return res.data?.data ?? res.data;
     } catch (error: any) {
       toast.add({
         title: "Error al actualizar",
-        description: error?.data?.message ?? error.message,
+        description: error.response?.data?.message ?? error.message,
         color: "error",
       });
       throw error;
@@ -55,12 +56,12 @@ export function useProductos() {
 
   const remove = async (id: string) => {
     try {
-      await $fetch(`/api/productos/${id}`, { method: "DELETE" });
+      await api.post(`/producto/delete/${id}`);
       toast.add({ title: "Producto eliminado", color: "success" });
     } catch (error: any) {
       toast.add({
         title: "Error al eliminar",
-        description: error?.data?.message ?? error.message,
+        description: error.response?.data?.message ?? error.message,
         color: "error",
       });
       throw error;

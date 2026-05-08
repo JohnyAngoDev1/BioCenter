@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const res = await $fetch<any>(buildUrl(config.apiUrl, `producto/update/${id}`), {
       method: "PUT",
       body,
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: token ? { Authorization: token } : {},
     });
     return res?.data ?? res;
   } catch (error: any) {

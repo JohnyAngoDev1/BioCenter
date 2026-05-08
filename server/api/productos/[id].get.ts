@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const res = await $fetch<any>(buildUrl(config.apiUrl, `producto/${id}`), {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: token ? { Authorization: token } : {},
     });
     return res?.data ?? res;
   } catch (error: any) {
