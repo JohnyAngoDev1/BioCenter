@@ -33,14 +33,14 @@ export const useCart = () => {
     }
   }
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string | number) => {
     const index = cart.value.findIndex(item => item.id === id)
     if (index > -1) {
       cart.value.splice(index, 1)
     }
   }
 
-  const updateQuantity = (id: number, delta: number) => {
+  const updateQuantity = (id: string | number, delta: number) => {
     const item = cart.value.find(i => i.id === id)
     if (item) {
       const newQty = item.quantity + delta

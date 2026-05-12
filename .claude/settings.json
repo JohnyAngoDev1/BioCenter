@@ -4,7 +4,16 @@
       "Bash(curl -s \"https://raw.githubusercontent.com/payphoneEC/ApiConnectionExample/master/src/providers/login/login.ts\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/payphoneEC/ApiConnectionExample/master/src/models/token/token.response.model.ts\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/payphoneEC/ApiConnectionExample/master/src/models/pay/sale-result-response.model.ts\")",
-      "Bash(curl -s \"https://webcache.googleusercontent.com/search?q=cache:docs.payphone.app/cajita-de-pagos-payphone\" -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\")"
+      "Bash(curl -s \"https://webcache.googleusercontent.com/search?q=cache:docs.payphone.app/cajita-de-pagos-payphone\" -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\")",
+      "Bash(xxd /Users/ken/Documents/Magdata/BioCenter/server/api/services.get.ts)",
+      "Bash(curl -s http://localhost:3000/api/services)",
+      "Bash(curl -s \"https://landingpay.magdata.com.ec/producto\")",
+      "Bash(curl -s \"https://landingpay.magdata.com.ec/producto/all\")",
+      "Bash(curl -s \"https://landingpay.magdata.com.ec/productos\")",
+      "Bash(curl -s \"https://landingpay.magdata.com.ec/public/producto\")",
+      "Bash(curl -s \"https://landingpay.magdata.com.ec/api/producto\")",
+      "Bash(curl -s \"https://landingpay.magdata.com.ec/producto/public\")",
+      "Bash(xargs ls)"
     ]
   }
 }

@@ -34,6 +34,19 @@ function removeFeature(index: number) {
     (form.value.features ?? []).filter((_, i) => i !== index),
   );
 }
+
+const imagePreview = computed(() => form.value.image || null);
+const imageInput = ref<HTMLInputElement | null>(null);
+
+function onImageFile(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    update("image", e.target?.result as string);
+  };
+  reader.readAsDataURL(file);
+}
 </script>
 
 <template>
@@ -76,13 +89,46 @@ function removeFeature(index: number) {
         />
       </UFormField>
 
-      <UFormField label="Imagen (URL)">
-        <UInput
-          :model-value="form.image"
-          placeholder="/images/services/nombre.png"
-          class="w-full"
-          @update:model-value="update('image', $event)"
-        />
+      <UFormField label="Imagen">
+        <div class="space-y-3 w-full">
+          <div
+            v-if="imagePreview"
+            class="relative w-full h-40 rounded-xl overflow-hidden border border-gray-200 bg-gray-50"
+          >
+            <img :src="imagePreview" class="w-full h-full object-cover" />
+            <UButton
+              icon="i-lucide-x"
+              size="xs"
+              color="error"
+              variant="solid"
+              class="absolute top-2 right-2 rounded-full"
+              @click="update('image', '')"
+            />
+          </div>
+          <div class="flex gap-2">
+            <UInput
+              :model-value="form.image"
+              placeholder="URL de imagen o sube un archivo"
+              class="flex-1"
+              @update:model-value="update('image', $event)"
+            />
+            <UButton
+              icon="i-lucide-upload"
+              variant="outline"
+              color="neutral"
+              @click="imageInput?.click()"
+            >
+              Subir
+            </UButton>
+          </div>
+          <input
+            ref="imageInput"
+            type="file"
+            accept="image/*"
+            class="hidden"
+            @change="onImageFile"
+          />
+        </div>
       </UFormField>
 
       <UFormField label="Descripción corta" required class="md:col-span-2">
@@ -104,6 +150,29 @@ function removeFeature(index: number) {
           @update:model-value="update('longDescription', $event)"
         />
       </UFormField>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 rounded-xl border border-gray-100 bg-gray-50 p-4">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold text-gray-800">Requiere pago</p>
+          <p class="text-xs text-gray-500">Muestra el botón "Añadir al carrito"</p>
+        </div>
+        <UToggle
+          :model-value="form.isApplyPay !== false"
+          @update:model-value="update('isApplyPay', $event)"
+        />
+      </div>
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold text-gray-800">Requiere dirección</p>
+          <p class="text-xs text-gray-500">Solicita dirección de entrega en el checkout</p>
+        </div>
+        <UToggle
+          :model-value="form.isApplyAddress !== false"
+          @update:model-value="update('isApplyAddress', $event)"
+        />
+      </div>
     </div>
 
     <div>
