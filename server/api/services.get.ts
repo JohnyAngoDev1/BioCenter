@@ -1,14 +1,36 @@
-import servicesData from '~~/app/template/services_list.json';
+import { buildUrl } from "../utils/api";
 
 export default defineEventHandler(async (event) => {
-    const allServices = Object.values(servicesData).flat().map(service => {
-        // Generar un slug a partir del título (ej: "Suero Detox Profundo" -> "suero-detox-profundo")
-        const slug = service.title
-            .toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // eliminar tildes
-            .replace(/[^a-z0-9]+/g, '-') // reemplazar espacios o caracteres raros por guión
-            .replace(/(^-|-$)+/g, ''); // quitar guiones de los bordes
-        return { ...service, slug };
-    });
-    return allServices;
-})
+    const config = useRuntimeConfig(event);
+    const token = getCookie(event, "auth_token");
+    const apiUrl = (config.apiUrl as string) || "";
+
+    try {
+        const res = await $fetch<any>(buildUrl(apiUrl, "producto"), {
+            headers: token ? { Authorization: token } : {},
+        });
+
+        const data = res?.data ?? res;
+
+        if (!Array.isArray(data)) return [];
+
+        return data.map((item: any) => {
+            const title = item.title || "sin-titulo";
+            const slug = title
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)+/g, '');
+
+            return {
+                ...item,
+                id: item._id, // Mapeo para compatibilidad con useCart y checkout
+                slug
+            };
+        });
+    } catch (error: any) {
+        console.error('[API Services Error]:', error);
+        return [];
+    }
+});

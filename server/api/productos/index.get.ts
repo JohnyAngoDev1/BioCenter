@@ -8,7 +8,26 @@ export default defineEventHandler(async (event) => {
     const res = await $fetch<any>(buildUrl(config.apiUrl, "producto"), {
       headers: token ? { Authorization: token } : {},
     });
-    return res?.data ?? res;
+
+    const data = res?.data ?? res;
+
+    if (!Array.isArray(data)) return data;
+
+    return data.map((item: any) => {
+      const title = item.title || "sin-titulo";
+      const slug = title
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+
+      return {
+        ...item,
+        id: item._id,
+        slug
+      };
+    });
   } catch (error: any) {
     throw createError({
       statusCode: error.response?.status ?? 500,
