@@ -158,7 +158,7 @@ function onImageFile(event: Event) {
           <p class="text-sm font-semibold text-gray-800">Requiere pago</p>
           <p class="text-xs text-gray-500">Muestra el botón "Añadir al carrito"</p>
         </div>
-        <UToggle
+        <USwitch
           :model-value="form.isApplyPay !== false"
           @update:model-value="update('isApplyPay', $event)"
         />
@@ -168,7 +168,7 @@ function onImageFile(event: Event) {
           <p class="text-sm font-semibold text-gray-800">Requiere dirección</p>
           <p class="text-xs text-gray-500">Solicita dirección de entrega en el checkout</p>
         </div>
-        <UToggle
+        <USwitch
           :model-value="form.isApplyAddress !== false"
           @update:model-value="update('isApplyAddress', $event)"
         />

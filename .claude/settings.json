@@ -13,7 +13,9 @@
       "Bash(curl -s \"https://landingpay.magdata.com.ec/public/producto\")",
       "Bash(curl -s \"https://landingpay.magdata.com.ec/api/producto\")",
       "Bash(curl -s \"https://landingpay.magdata.com.ec/producto/public\")",
-      "Bash(xargs ls)"
+      "Bash(xargs ls)",
+      "Bash(git -C /Users/ken/Documents/Magdata/BioCenter log --oneline --follow -- app/components/productos/ProductoForm.vue)",
+      "Bash(git -C /Users/ken/Documents/Magdata/BioCenter show 65c06ac -- app/components/productos/ProductoForm.vue)"
     ]
   }
 }
