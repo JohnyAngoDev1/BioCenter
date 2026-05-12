@@ -115,6 +115,7 @@ const goBack = () => {
 
           <div class="mt-auto pt-8 flex flex-col gap-4">
             <UButton
+              v-if="selectedService.isApplyPay !== false"
               block
               size="xl"
               color="primary"

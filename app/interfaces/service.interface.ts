@@ -1,5 +1,5 @@
 export interface Service {
-    id: number;
+    id: string | number;
     title: string;
     description: string;
     longDescription?: string;
@@ -9,4 +9,6 @@ export interface Service {
     badge?: string;
     features?: string[];
     slug?: string;
+    isApplyPay?: boolean;
+    isApplyAddress?: boolean;
 }

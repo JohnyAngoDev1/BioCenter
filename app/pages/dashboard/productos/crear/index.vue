@@ -13,6 +13,8 @@ const form = ref({
   category: "",
   badge: "",
   features: [] as string[],
+  isApplyPay: true,
+  isApplyAddress: true,
 });
 
 const loading = ref(false);

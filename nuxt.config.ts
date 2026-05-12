@@ -11,6 +11,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    catalogToken: "",
     payphoneApiUrl: "https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod",
     payphoneToken:
       "lOnz_cBeh9HWBAiaDZdvwp8GpQYqXK5msXQBQv33c9tmRfUQ1gPMfzy-LfEzEUdCtQtMCjUKR31ouyJXked8MIfSXEXwG512h0O0kwug4wUtJe7z0FiTPwcy8pVreNdMjBl6plYwTC90mfs0zCClxiQHaUTzjecDk-P3SyPEmtxToaLZZSGmgYjY8cF9hLktEIQX5T2QSWDwXC16D3K8QcvYQPOL3WTGZTFV7NS6u_iRvFDTOZcCGUd5MgTKxdBweFxFXcVWzlJt0_g2PtW0IuLAi-z7DqfmSHxHW4SYKr4B_BglcJwvabXbRtljb0KpiU0WwQ",

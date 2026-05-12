@@ -8,6 +8,8 @@ export interface Producto {
   category: string;
   badge?: string;
   features?: string[];
+  isApplyPay?: boolean;
+  isApplyAddress?: boolean;
 }
 
 export function useProductos() {

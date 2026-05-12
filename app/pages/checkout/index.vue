@@ -8,6 +8,10 @@ const currentStep = ref(1)
 
 const { cart, cartTotal, cartCount, updateQuantity, removeFromCart } = useCart()
 
+const needsAddress = computed(() =>
+  cart.value.some(item => item.isApplyAddress !== false)
+)
+
 type LocationOption = { label: string; value: string }
 
 const provincias = ref<LocationOption[]>([])
@@ -334,26 +338,28 @@ watch(currentStep, async (step) => {
               <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-500 shadow-sm" :class="currentStep >= 1 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'">1</div>
               <span class="font-bold text-xs sm:text-sm hidden sm:block">Resumen</span>
             </div>
-            
+
             <!-- Linea Recta -->
             <div class="h-1.5 flex-1 rounded-full bg-gray-100 overflow-hidden mx-1 sm:mx-4">
               <div class="h-full bg-primary transition-all duration-700 ease-in-out" :style="`width: ${currentStep >= 2 ? '100%' : '0%'}`"></div>
             </div>
 
-            <!-- Circulo 2 -->
-            <div class="flex items-center gap-2 transition-colors duration-300" :class="currentStep >= 2 ? 'text-primary' : 'text-gray-400'">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-500 shadow-sm delay-200" :class="currentStep >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'">2</div>
-              <span class="font-bold text-xs sm:text-sm hidden sm:block">Envío</span>
-            </div>
-            
-            <!-- Linea Recta -->
-            <div class="h-1.5 flex-1 rounded-full bg-gray-100 overflow-hidden mx-1 sm:mx-4">
-              <div class="h-full bg-primary transition-all duration-700 ease-in-out" :style="`width: ${currentStep >= 3 ? '100%' : '0%'}`"></div>
-            </div>
+            <!-- Circulo 2: solo si necesita dirección -->
+            <template v-if="needsAddress">
+              <div class="flex items-center gap-2 transition-colors duration-300" :class="currentStep >= 2 ? 'text-primary' : 'text-gray-400'">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-500 shadow-sm delay-200" :class="currentStep >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'">2</div>
+                <span class="font-bold text-xs sm:text-sm hidden sm:block">Envío</span>
+              </div>
 
-            <!-- Circulo 3 -->
+              <!-- Linea Recta -->
+              <div class="h-1.5 flex-1 rounded-full bg-gray-100 overflow-hidden mx-1 sm:mx-4">
+                <div class="h-full bg-primary transition-all duration-700 ease-in-out" :style="`width: ${currentStep >= 3 ? '100%' : '0%'}`"></div>
+              </div>
+            </template>
+
+            <!-- Circulo 3 (Pago) -->
             <div class="flex items-center gap-2 transition-colors duration-300" :class="currentStep >= 3 ? 'text-primary' : 'text-gray-400'">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-500 shadow-sm delay-200" :class="currentStep >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'">3</div>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-500 shadow-sm delay-200" :class="currentStep >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'">{{ needsAddress ? 3 : 2 }}</div>
               <span class="font-bold text-xs sm:text-sm hidden sm:block">Pago</span>
             </div>
           </div>
@@ -408,8 +414,8 @@ watch(currentStep, async (step) => {
 
               <!-- Buttons Navigation -->
               <div class="flex justify-end items-center mt-6 pt-6 border-t border-gray-100">
-                <UButton size="xl" color="primary" class="rounded-full px-8 shadow-md" @click="currentStep = 2">
-                  Ingresar Datos de Envío
+                <UButton size="xl" color="primary" class="rounded-full px-8 shadow-md" @click="currentStep = needsAddress ? 2 : 3">
+                  {{ needsAddress ? 'Ingresar Datos de Envío' : 'Continuar al Pago' }}
                   <template #trailing>
                     <UIcon name="i-heroicons-arrow-right-20-solid" />
                   </template>
@@ -636,7 +642,7 @@ watch(currentStep, async (step) => {
               
               <template #footer>
                 <div class="flex justify-start">
-                  <UButton variant="ghost" color="neutral" class="rounded-full px-6" @click="currentStep = 2">
+                  <UButton variant="ghost" color="neutral" class="rounded-full px-6" @click="currentStep = needsAddress ? 2 : 1">
                     <template #leading>
                       <UIcon name="i-heroicons-arrow-left-20-solid" />
                     </template>

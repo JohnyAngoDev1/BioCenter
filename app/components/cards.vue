@@ -127,6 +127,7 @@ const handleAddToCart = (item: Service) => {
 
           <div class="flex items-center gap-2 mt-6 pt-4 border-t border-primary/5">
             <UButton
+              v-if="item.isApplyPay !== false"
               block
               color="primary"
               variant="solid"
@@ -142,7 +143,7 @@ const handleAddToCart = (item: Service) => {
               color="neutral"
               variant="ghost"
               icon="i-heroicons-eye-20-solid"
-              class="rounded-xl p-3"
+              :class="item.isApplyPay !== false ? 'rounded-xl p-3' : 'flex-1 rounded-xl py-3'"
               @click="openDetails(item)"
             />
           </div>
