@@ -132,7 +132,7 @@ const goBack = () => {
               class="rounded-2xl py-4 font-black shadow-xl shadow-primary/20 hover:-translate-y-1 transition-transform"
               @click="handleAddToCart"
             >
-              {{ selectedService.isApplyPay !== false ? 'Comprar ahora' : 'Agendar por WhatsApp' }}
+              {{ selectedService.isApplyPay !== false ? 'Comprar ahora' : 'Solicitar información' }}
               <template #trailing>
                 <UIcon :name="selectedService.isApplyPay !== false ? 'i-heroicons-shopping-cart-20-solid' : 'i-simple-icons-whatsapp'" />
               </template>

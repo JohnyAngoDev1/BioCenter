@@ -74,7 +74,7 @@ const handleAddToCart = (item: Service) => {
       </div>
 
       <!-- Filtros de Categoría -->
-      <div v-if="!props.limit" class="flex overflow-x-auto md:flex-wrap justify-start md:justify-center gap-2 mb-8 md:mb-12 pb-4 md:pb-0 no-scrollbar px-4 md:px-0">
+      <!-- <div v-if="!props.limit" class="flex overflow-x-auto md:flex-wrap justify-start md:justify-center gap-2 mb-8 md:mb-12 pb-4 md:pb-0 no-scrollbar px-4 md:px-0">
         <button
           v-for="cat in categories"
           :key="cat"
@@ -88,7 +88,7 @@ const handleAddToCart = (item: Service) => {
         >
           {{ cat }}
         </button>
-      </div>
+      </div> -->
 
       <!-- Loading State -->
       <div v-if="pending" class="flex flex-wrap justify-center gap-8">
@@ -144,7 +144,7 @@ const handleAddToCart = (item: Service) => {
               class="flex-1 rounded-xl font-bold py-3 shadow-lg shadow-primary/20"
               @click="handleAddToCart(item)"
             >
-              {{ item.isApplyPay !== false ? 'Comprar ahora' : 'Agendar cita' }}
+              {{ item.isApplyPay !== false ? 'Comprar ahora' : 'Solicitar información' }}
               <template #trailing>
                 <UIcon :name="item.isApplyPay !== false ? 'i-heroicons-shopping-cart-20-solid' : 'i-simple-icons-whatsapp'" />
               </template>
