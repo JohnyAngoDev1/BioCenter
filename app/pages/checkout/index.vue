@@ -8,9 +8,9 @@ const currentStep = ref(1)
 
 const { cart, cartTotal, cartCount, updateQuantity, removeFromCart } = useCart()
 
-const needsAddress = computed(() =>
-  cart.value.some(item => item.isApplyAddress !== false)
-)
+const needsAddress = computed(() => {
+  return cart.value.some(item => item.isApplyAddress !== false)
+})
 
 type LocationOption = { label: string; value: string }
 

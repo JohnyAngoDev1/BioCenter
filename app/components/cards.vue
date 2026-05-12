@@ -127,23 +127,22 @@ const handleAddToCart = (item: Service) => {
 
           <div class="flex items-center gap-2 mt-6 pt-4 border-t border-primary/5">
             <UButton
-              v-if="item.isApplyPay !== false"
               block
               color="primary"
               variant="solid"
               class="flex-1 rounded-xl font-bold py-3 shadow-lg shadow-primary/20"
               @click="handleAddToCart(item)"
             >
-              Añadir
+              {{ item.isApplyPay !== false ? 'Comprar ahora' : 'Agendar cita' }}
               <template #trailing>
-                <UIcon name="i-heroicons-shopping-cart-20-solid" />
+                <UIcon :name="item.isApplyPay !== false ? 'i-heroicons-shopping-cart-20-solid' : 'i-simple-icons-whatsapp'" />
               </template>
             </UButton>
             <UButton
               color="neutral"
               variant="ghost"
               icon="i-heroicons-eye-20-solid"
-              :class="item.isApplyPay !== false ? 'rounded-xl p-3' : 'flex-1 rounded-xl py-3'"
+              class="rounded-xl p-3"
               @click="openDetails(item)"
             />
           </div>

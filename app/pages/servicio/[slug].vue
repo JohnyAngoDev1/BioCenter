@@ -3,12 +3,14 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useServices } from '~/composables/useServices'
 import { useCart } from '~/composables/useCart'
+import { useTemplate } from '~/composables/useTemplate'
 
 const route = useRoute()
 const router = useRouter()
 const { servicesList, pending, error } = useServices()
 const { addToCart } = useCart()
 const toast = useToast()
+const { t } = useTemplate()
 
 const serviceSlug = String(route.params.slug)
 const selectedService = computed(() => {
@@ -29,6 +31,14 @@ const openRecommended = (slug: string) => {
 
 const handleAddToCart = () => {
   if (selectedService.value) {
+    // Redirigir a WhatsApp si no requiere pago online
+    if (selectedService.value.isApplyPay === false) {
+      const phoneNumber = t('wspbutton_phone_number')
+      const message = `Hola, estoy interesado en agendar el servicio: ${selectedService.value.title}`
+      window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank')
+      return
+    }
+
     addToCart(selectedService.value)
     toast.add({
       title: '¡Producto añadido!',
@@ -115,7 +125,6 @@ const goBack = () => {
 
           <div class="mt-auto pt-8 flex flex-col gap-4">
             <UButton
-              v-if="selectedService.isApplyPay !== false"
               block
               size="xl"
               color="primary"
@@ -123,9 +132,9 @@ const goBack = () => {
               class="rounded-2xl py-4 font-black shadow-xl shadow-primary/20 hover:-translate-y-1 transition-transform"
               @click="handleAddToCart"
             >
-              Añadir al Carrito
+              {{ selectedService.isApplyPay !== false ? 'Comprar ahora' : 'Agendar por WhatsApp' }}
               <template #trailing>
-                <UIcon name="i-heroicons-shopping-cart-20-solid" />
+                <UIcon :name="selectedService.isApplyPay !== false ? 'i-heroicons-shopping-cart-20-solid' : 'i-simple-icons-whatsapp'" />
               </template>
             </UButton>
             
