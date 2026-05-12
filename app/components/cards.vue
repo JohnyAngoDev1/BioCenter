@@ -39,6 +39,17 @@ const openDetails = (item: Service) => {
 }
 
 const handleAddToCart = (item: Service) => {
+  // Verificamos de forma robusta si requiere pago online
+  const needsPayment = item.isApplyPay === true || item.isApplyPay === 1 || String(item.isApplyPay).toLowerCase() === 'true';
+
+  if (!needsPayment) {
+    const phoneNumber = t('wspbutton_phone_number')
+    const message = `Hola, estoy interesado en agendar el servicio: ${item.title}`
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank')
+    return
+  }
+
+  // Flujo normal de carrito para pagos online
   addToCart(item)
   toast.add({
     title: '¡Producto añadido!',
