@@ -16,70 +16,60 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Llamada real al Proxy de AWS para confirmar el pago
+    // 1. INTENTO RÁPIDO: Consultar directamente a tu API de pedidos
+    // Esto es mucho más rápido que el Proxy de AWS
+    try {
+      const orderUrl = `${config.apiUrl}order/${orderId}`;
+      console.log('[PayPhone Confirm] Consultando estado en landingpay:', orderUrl);
+      const orderData = await $fetch<any>(orderUrl);
+      
+      const order = orderData?.data || orderData;
+      if (order && (order.payment_status === 'paid' || order.payphone_status === 'APPROVED')) {
+        console.log('[PayPhone Confirm] Éxito: Pedido ya marcado como pagado en DB');
+        if (isAjax) return { status: 'success', orderId, clientTransactionId };
+        return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
+      }
+    } catch (e) {
+      console.warn('[PayPhone Confirm] No se pudo verificar en landingpay, intentando Proxy...');
+    }
+
+    // 2. INTENTO SEGUNDO: Llamada al Proxy de AWS (como respaldo)
     const confirmUrl = `${config.payphoneApiUrl}/confirm`;
-    console.log('[PayPhone Confirm] Llamando al Proxy AWS:', confirmUrl, { orderId, clientTransactionId });
+    console.log('[PayPhone Confirm] Llamando al Proxy AWS (Fallback):', confirmUrl);
     
     const response = await axios.get(confirmUrl, {
       params: { orderId, clientTransactionId },
-      timeout: 15000 // 15 segundos máximo para evitar que se quede cargando
+      timeout: 15000 
     });
     
     const data = response.data;
-    console.log('[PayPhone Confirm] Respuesta recibida del Proxy');
-    console.log('[PayPhone Confirm] Respuesta del Proxy:', JSON.stringify(data, null, 2));
-
-    // El Proxy puede devolver la info en varios niveles
     const result = data.payphoneResponse || data.data || data.payload || data.order || data;
-    console.log('[PayPhone Confirm] Result extracted:', JSON.stringify(result, null, 2));
     
-    // Validación de aprobación ultra-robusta (revisamos raíz y niveles internos)
+    // ... resto de la lógica de validación que ya tenemos ...
     const rootStatus = String(data.status || data.success || data.response || '').toUpperCase();
     const internalStatus = String(result.status || result.state || '').toUpperCase();
     const transStatus = String(result.transactionStatus || '').toUpperCase();
     const payphoneStatus = String(result.payphone_status || '').toUpperCase();
     
     const isApproved = 
-      // Banderas booleanas o strings de éxito en raíz o interno
       data.status === true || 
       data.success === true || 
       data.response === true ||
       result.approved === true || 
       result.success === true || 
       result.payment_status === 'paid' ||
-      // Comparaciones de texto
       rootStatus === 'APPROVED' || 
-      rootStatus === 'SUCCESS' ||
-      rootStatus === 'TRUE' ||
       internalStatus === 'APPROVED' || 
-      internalStatus === 'SUCCESS' ||
       transStatus === 'APPROVED' ||
       payphoneStatus === 'APPROVED' ||
-      // Códigos específicos de PayPhone
-      result.statusCode === 3 ||
-      String(result.transactionStatus).toLowerCase() === 'approved';
-
-    // Detectamos si es una petición AJAX (desde el frontend) o navegación directa
-    const isAjax = getHeader(event, 'accept')?.includes('application/json') || query.ajax === 'true';
+      Number(result.statusCode) === 3;
 
     if (isApproved) {
-      console.log('[PayPhone Confirm] Pago Verificado con Éxito');
       if (isAjax) return { status: 'success', orderId, clientTransactionId };
-      return sendRedirect(event, `/payment/success?id=${orderId}&clientTransactionId=${clientTransactionId}`, 302);
+      return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
     } else {
-      console.warn('[PayPhone Confirm] Pago NO verificado. Detalles:', { root: data, internal: result });
-      const msg = result.message || data.message || 'Pago no aprobado o pendiente de verificación';
-      if (isAjax) {
-        return { 
-          status: 'error', 
-          message: msg, 
-          debug: { // ESTO NOS DIRÁ EL PROBLEMA REAL
-            proxyResponse: data,
-            extractedResult: result,
-            check: { rootStatus, internalStatus, transStatus }
-          }
-        };
-      }
+      const msg = result.message || 'Pago en proceso o no aprobado';
+      if (isAjax) return { status: 'error', message: msg, debug: { proxyResponse: data } };
       return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(msg)}`, 302);
     }
 
