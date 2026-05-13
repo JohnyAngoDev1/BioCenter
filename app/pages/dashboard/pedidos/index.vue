@@ -79,6 +79,12 @@ function openUpdate(pedido: Pedido) {
 
 async function confirmUpdate() {
   if (!updateTarget.value?._id || !newStatus.value) return;
+  
+  console.log('[ConfirmUpdate] Enviando actualización:', { 
+    id: updateTarget.value._id, 
+    status: newStatus.value 
+  });
+
   updating.value = true;
   try {
     await update(updateTarget.value._id, newStatus.value);

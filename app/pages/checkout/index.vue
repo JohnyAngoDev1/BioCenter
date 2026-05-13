@@ -79,23 +79,48 @@ const form = ref({
   lng: null as number | null
 })
 
-// Función para validar cédula ecuatoriana (Algoritmo Módulo 10)
-const validarCedulaEcuatoriana = (cedula: string) => {
-  if (!cedula || cedula.length < 10) return false;
+const validarDocumentoEcuatoriano = (numero: string) => {
+  if (!numero || (numero.length !== 10 && numero.length !== 13)) return false;
+  if (!/^\d+$/.test(numero)) return false;
+
+  const provincia = parseInt(numero.substring(0, 2));
+  if (provincia < 1 || (provincia > 24 && provincia !== 30)) return false;
+
+  const tercerDigito = parseInt(numero.substring(2, 3));
   
-  // Si es RUC (13 dígitos), validamos los primeros 10
-  const cad = cedula.substring(0, 10);
-  const total = cad.split('').reduce((acc, curr, i) => {
-    let val = parseInt(curr);
-    if (i % 2 === 0) {
-      val *= 2;
-      if (val > 9) val -= 9;
-    }
-    return acc + val;
-  }, 0);
+  if (tercerDigito < 6) {
+    // PERSONA NATURAL (Cédula o RUC Persona Natural)
+    if (numero.length === 13 && !numero.endsWith('001')) return false;
+    const cad = numero.substring(0, 9);
+    const total = cad.split('').reduce((acc, curr, i) => {
+      let val = parseInt(curr);
+      if (i % 2 === 0) {
+        val *= 2;
+        if (val > 9) val -= 9;
+      }
+      return acc + val;
+    }, 0);
+    const verificador = total % 10 ? 10 - (total % 10) : 0;
+    return verificador === parseInt(numero.charAt(9));
+  } else if (tercerDigito === 6) {
+    // ENTIDAD PÚBLICA
+    if (numero.length !== 13 || !numero.endsWith('0001')) return false;
+    const coeficientes = [3, 2, 7, 6, 5, 4, 3, 2];
+    const cad = numero.substring(0, 8);
+    const total = cad.split('').reduce((acc, curr, i) => acc + (parseInt(curr) * coeficientes[i]), 0);
+    const verificador = total % 11 ? 11 - (total % 11) : 0;
+    return verificador === parseInt(numero.charAt(8));
+  } else if (tercerDigito === 9) {
+    // SOCIEDAD PRIVADA / EXTRANJERO
+    if (numero.length !== 13 || !numero.endsWith('001')) return false;
+    const coeficientes = [4, 3, 2, 7, 6, 5, 4, 3, 2];
+    const cad = numero.substring(0, 9);
+    const total = cad.split('').reduce((acc, curr, i) => acc + (parseInt(curr) * coeficientes[i]), 0);
+    const verificador = total % 11 ? 11 - (total % 11) : 0;
+    return verificador === parseInt(numero.charAt(9));
+  }
   
-  const verificador = total % 10 ? 10 - (total % 10) : 0;
-  return verificador === parseInt(cad.charAt(9));
+  return false;
 }
 
 const schema = z.object({
@@ -105,7 +130,7 @@ const schema = z.object({
   documentNumber: z.string()
     .min(10, 'Mínimo 10 dígitos')
     .max(13, 'Máximo 13 dígitos')
-    .refine((val) => validarCedulaEcuatoriana(val), {
+    .refine((val) => validarDocumentoEcuatoriano(val), {
       message: 'Cédula o RUC inválido'
     }),
   phone: z.string().min(9, 'El teléfono es obligatorio'),
