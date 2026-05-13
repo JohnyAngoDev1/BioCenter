@@ -48,11 +48,15 @@ export default defineEventHandler(async (event) => {
     });
     
     const data = response.data;
+    console.log('[PayPhone Confirm] JSON recibido del Proxy:', JSON.stringify(data));
 
-    // Si el Proxy nos da una URL de retorno específica (como la que viste con status=paid), la seguimos
-    if (data.url && !isAjax) {
-      console.log('[PayPhone Confirm] Redirigiendo a URL del Proxy:', data.url);
-      return sendRedirect(event, data.url, 302);
+    let redirectUrl = data.url || data.payload?.url || data.data?.url;
+    
+    if (redirectUrl) {
+      console.log('>>> [REDIRECCIÓN ENCONTRADA] Saltando a URL:', redirectUrl);
+      if (!isAjax) {
+        return sendRedirect(event, redirectUrl, 302);
+      }
     }
 
     const result = data.payphoneResponse || data.data || data.payload || data.order || data;
@@ -79,12 +83,18 @@ export default defineEventHandler(async (event) => {
 
     if (isApproved) {
       console.log('[PayPhone Confirm] Pago Verificado');
-      if (isAjax) return { status: 'success', orderId, clientTransactionId };
-      return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
+      if (isAjax) return { 
+        status: 'success', 
+        orderId, 
+        clientTransactionId, 
+        url: redirectUrl || `/payment/success?id=${orderId}`,
+        data: result 
+      };
+      return sendRedirect(event, redirectUrl || `/payment/success?id=${orderId}`, 302);
     } else {
       console.warn('[PayPhone Confirm] Pago No Aprobado/Pendiente');
       const msg = 'Pago en proceso o no aprobado';
-      if (isAjax) return { status: 'error', message: msg, debug: { proxyResponse: data } };
+      if (isAjax) return { status: 'error', message: msg, url: redirectUrl, debug: { proxyResponse: data } };
       return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(msg)}`, 302);
     }
 

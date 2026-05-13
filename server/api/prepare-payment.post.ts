@@ -53,10 +53,11 @@ export default defineEventHandler(async (event) => {
     return {
       status: proxyData.status === true || proxyData.response === true,
       payWithCard: proxyData.data?.payWithCard || proxyData.data?.payWithPayPhone,
+      url: proxyData.data?.payWithCard || proxyData.data?.payWithPayPhone, // Alias para facilitar extracción
       orderId: orderId,
       clientTransactionId: payload.clientTransactionId || clientTransactionId,
-      sentToProxy: awsPayload, // Lo que mandamos
-      details: proxyData       // Lo que recibimos
+      sentToProxy: awsPayload, 
+      details: proxyData       
     };
   } catch (err: any) {
     console.error('[PayPhone Error]:', err.response?.data || err.message);
