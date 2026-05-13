@@ -26,13 +26,14 @@ export default defineEventHandler(async (event) => {
     console.log('[PayPhone Confirm] Respuesta del Proxy:', JSON.stringify(data, null, 2));
 
     // El Proxy puede devolver la info en varios niveles
-    const result = data.payphoneResponse || data.data || data.payload || data;
-    console.log('[PayPhone Confirm] Full Proxy Data:', JSON.stringify(data, null, 2));
+    const result = data.payphoneResponse || data.data || data.payload || data.order || data;
+    console.log('[PayPhone Confirm] Result extracted:', JSON.stringify(result, null, 2));
     
     // Validación de aprobación ultra-robusta (revisamos raíz y niveles internos)
     const rootStatus = String(data.status || data.success || data.response || '').toUpperCase();
     const internalStatus = String(result.status || result.state || '').toUpperCase();
     const transStatus = String(result.transactionStatus || '').toUpperCase();
+    const payphoneStatus = String(result.payphone_status || '').toUpperCase();
     
     const isApproved = 
       // Banderas booleanas o strings de éxito en raíz o interno
@@ -41,6 +42,7 @@ export default defineEventHandler(async (event) => {
       data.response === true ||
       result.approved === true || 
       result.success === true || 
+      result.payment_status === 'paid' ||
       // Comparaciones de texto
       rootStatus === 'APPROVED' || 
       rootStatus === 'SUCCESS' ||
@@ -48,6 +50,7 @@ export default defineEventHandler(async (event) => {
       internalStatus === 'APPROVED' || 
       internalStatus === 'SUCCESS' ||
       transStatus === 'APPROVED' ||
+      payphoneStatus === 'APPROVED' ||
       // Códigos específicos de PayPhone
       result.statusCode === 3 ||
       String(result.transactionStatus).toLowerCase() === 'approved';
