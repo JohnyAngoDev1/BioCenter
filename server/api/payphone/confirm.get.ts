@@ -27,31 +27,41 @@ export default defineEventHandler(async (event) => {
 
     // El Proxy puede devolver la info en varios niveles
     const result = data.payphoneResponse || data.data || data.payload || data;
-    console.log('[PayPhone Confirm] Result extracted:', JSON.stringify(result, null, 2));
+    console.log('[PayPhone Confirm] Full Proxy Data:', JSON.stringify(data, null, 2));
     
-    // Validación de aprobación ultra-robusta
-    const status = String(result.status || result.state || '').toUpperCase();
+    // Validación de aprobación ultra-robusta (revisamos raíz y niveles internos)
+    const rootStatus = String(data.status || data.success || data.response || '').toUpperCase();
+    const internalStatus = String(result.status || result.state || '').toUpperCase();
     const transStatus = String(result.transactionStatus || '').toUpperCase();
     
     const isApproved = 
+      // Banderas booleanas o strings de éxito en raíz o interno
+      data.status === true || 
+      data.success === true || 
+      data.response === true ||
       result.approved === true || 
       result.success === true || 
-      status === 'APPROVED' || 
-      status === 'SUCCESS' ||
+      // Comparaciones de texto
+      rootStatus === 'APPROVED' || 
+      rootStatus === 'SUCCESS' ||
+      rootStatus === 'TRUE' ||
+      internalStatus === 'APPROVED' || 
+      internalStatus === 'SUCCESS' ||
       transStatus === 'APPROVED' ||
+      // Códigos específicos de PayPhone
       result.statusCode === 3 ||
-      result.transactionStatus === 'Approved';
+      String(result.transactionStatus).toLowerCase() === 'approved';
 
     // Detectamos si es una petición AJAX (desde el frontend) o navegación directa
     const isAjax = getHeader(event, 'accept')?.includes('application/json') || query.ajax === 'true';
 
     if (isApproved) {
-      console.log('[PayPhone Confirm] Pago Aprobado con éxito');
+      console.log('[PayPhone Confirm] Pago Verificado con Éxito');
       if (isAjax) return { status: 'success', orderId, clientTransactionId };
       return sendRedirect(event, `/payment/success?id=${orderId}&clientTransactionId=${clientTransactionId}`, 302);
     } else {
-      console.warn('[PayPhone Confirm] Pago no aprobado. Resultado:', result);
-      const msg = result.message || 'Pago no aprobado o pendiente';
+      console.warn('[PayPhone Confirm] Pago NO verificado. Detalles:', { root: data, internal: result });
+      const msg = result.message || data.message || 'Pago no aprobado o pendiente de verificación';
       if (isAjax) return { status: 'error', message: msg };
       return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(msg)}`, 302);
     }
