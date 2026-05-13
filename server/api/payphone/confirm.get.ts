@@ -6,10 +6,13 @@ export default defineEventHandler(async (event) => {
   
   console.log('[PayPhone Confirm] Verificando pago con Proxy AWS:', query);
 
-  const { orderId, clientTransactionId } = query;
+  // PayPhone suele enviar 'id', pero el proxy de AWS espera 'orderId'
+  const orderId = query.orderId || query.id;
+  const clientTransactionId = query.clientTransactionId;
 
   if (!orderId || !clientTransactionId) {
-    return sendRedirect(event, '/checkout?status=error&message=Missing+params', 302);
+    console.error('[PayPhone Confirm] Faltan parámetros en la URL:', { orderId, clientTransactionId, fullQuery: query });
+    return sendRedirect(event, '/checkout?status=error&message=Parametros+de+confirmacion+faltantes', 302);
   }
 
   try {
