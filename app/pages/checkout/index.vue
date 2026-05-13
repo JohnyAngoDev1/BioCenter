@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
+import * as z from 'zod'
 import { ref, watch, onMounted, nextTick } from '#imports'
 import { useCart } from '~/composables/useCart'
 
@@ -76,6 +77,42 @@ const form = ref({
   referencia: '',
   lat: null as number | null,
   lng: null as number | null
+})
+
+// Función para validar cédula ecuatoriana (Algoritmo Módulo 10)
+const validarCedulaEcuatoriana = (cedula: string) => {
+  if (!cedula || cedula.length < 10) return false;
+  
+  // Si es RUC (13 dígitos), validamos los primeros 10
+  const cad = cedula.substring(0, 10);
+  const total = cad.split('').reduce((acc, curr, i) => {
+    let val = parseInt(curr);
+    if (i % 2 === 0) {
+      val *= 2;
+      if (val > 9) val -= 9;
+    }
+    return acc + val;
+  }, 0);
+  
+  const verificador = total % 10 ? 10 - (total % 10) : 0;
+  return verificador === parseInt(cad.charAt(9));
+}
+
+const schema = z.object({
+  firstName: z.string().min(1, 'El nombre es obligatorio'),
+  lastName: z.string().min(1, 'El apellido es obligatorio'),
+  email: z.string().email('Email inválido').min(1, 'El correo es obligatorio'),
+  documentNumber: z.string()
+    .min(10, 'Mínimo 10 dígitos')
+    .max(13, 'Máximo 13 dígitos')
+    .refine((val) => validarCedulaEcuatoriana(val), {
+      message: 'Cédula o RUC inválido'
+    }),
+  phone: z.string().min(9, 'El teléfono es obligatorio'),
+  provincia: z.string().min(1, 'La provincia es obligatoria'),
+  canton: z.string().min(1, 'El cantón es obligatorio'),
+  callePrincipal: z.string().min(1, 'La calle principal es obligatoria'),
+  referencia: z.string().min(1, 'La referencia es obligatoria')
 })
 
 const isEditingMap = ref(false)
@@ -206,7 +243,8 @@ const formatPhone = (phone: string) => {
   return `+593${clean}`
 }
 
-const handleFinalSubmit = async () => {
+const handleFinalSubmit = async (event: any) => {
+  // El evento solo se dispara si la validación del schema pasa
   currentStep.value = 3
   await handlePaymentPreparation()
 }
@@ -438,7 +476,7 @@ watch(currentStep, async (step) => {
           <!-- BLOCK STEP 2: DIRECCION Y DATOS ============== -->
           <!-- ============================================== -->
           <div v-show="currentStep === 2" class="animate-[fade-in_0.4s_ease-out]">
-            <UForm :state="form" @submit="handleFinalSubmit" class="space-y-6">
+            <UForm :schema="schema" :state="form" @submit="handleFinalSubmit" class="space-y-6">
               
               <!-- Información Personal -->
               <UCard class="rounded-2xl shadow-sm border border-gray-100">
@@ -460,7 +498,7 @@ watch(currentStep, async (step) => {
                   <UFormField name="email" label="Correo Electrónico" required>
                     <UInput v-model="form.email" type="email" placeholder="correo@ejemplo.com" variant="soft" size="lg" class="w-full" />
                   </UFormField>
-                  <UFormField name="documentNumber" label="Cédula / RUC">
+                  <UFormField name="documentNumber" label="Cédula / RUC" required>
                     <UInput v-model="form.documentNumber" placeholder="Ej: 0912345678" variant="soft" size="lg" class="w-full" />
                   </UFormField>
                   <UFormField name="phone" label="Teléfono / WhatsApp" required class="md:col-span-2">
