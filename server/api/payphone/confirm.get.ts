@@ -62,7 +62,17 @@ export default defineEventHandler(async (event) => {
     } else {
       console.warn('[PayPhone Confirm] Pago NO verificado. Detalles:', { root: data, internal: result });
       const msg = result.message || data.message || 'Pago no aprobado o pendiente de verificación';
-      if (isAjax) return { status: 'error', message: msg };
+      if (isAjax) {
+        return { 
+          status: 'error', 
+          message: msg, 
+          debug: { // ESTO NOS DIRÁ EL PROBLEMA REAL
+            proxyResponse: data,
+            extractedResult: result,
+            check: { rootStatus, internalStatus, transStatus }
+          }
+        };
+      }
       return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(msg)}`, 302);
     }
 
