@@ -298,12 +298,26 @@ const handlePaymentPreparation = async () => {
     })
 
     if (data.status && data.payWithCard) {
-      // GUARDAR PERSISTENCIA ANTES DE REDIRIGIR
+      // GUARDAR PERSISTENCIA
       if (data.orderId && data.clientTransactionId) {
         localStorage.setItem('pending_order_id', data.orderId)
         localStorage.setItem('pending_client_transaction_id', data.clientTransactionId)
+        
+        // ABRIR PAYPHONE EN VENTANA EMERGENTE
+        const width = 600
+        const height = 800
+        const left = (window.innerWidth / 2) - (width / 2)
+        const top = (window.innerHeight / 2) - (height / 2)
+        
+        const popup = window.open(
+          data.payWithCard, 
+          'PayPhonePayment', 
+          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`
+        )
+
+        // INICIAR VIGILANCIA (POLLING)
+        startPaymentPolling(data.orderId, data.clientTransactionId, popup)
       }
-      window.location.href = data.payWithCard
     } else {
       payphoneError.value = data.details?.message || 'Error al preparar el pago'
     }
@@ -314,6 +328,39 @@ const handlePaymentPreparation = async () => {
     isProcessing.value = false
   }
 }
+
+// Lógica de Vigilancia Activa (Polling)
+let pollingInterval: any = null
+const startPaymentPolling = (orderId: string, clientTransactionId: string, popup: Window | null) => {
+  if (pollingInterval) clearInterval(pollingInterval)
+  
+  pollingInterval = setInterval(async () => {
+    try {
+      const { data } = await axios.get('/api/payphone/confirm', {
+        params: { orderId, clientTransactionId, ajax: 'true' }
+      })
+
+      if (data.status === 'success') {
+        clearInterval(pollingInterval)
+        if (popup && !popup.closed) popup.close()
+        
+        localStorage.removeItem('pending_order_id')
+        localStorage.removeItem('pending_client_transaction_id')
+        cartStore.clearCart()
+        return navigateTo(`/payment/success?id=${orderId}`)
+      }
+      
+      // Si el usuario cierra el popup manualmente
+      if (popup && popup.closed) {
+        // Hacemos una última comprobación antes de limpiar
+      }
+    } catch (e) {}
+  }, 3000)
+}
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval)
+})
 
 const mountPayphoneSDK = (data: any) => {
   try {
