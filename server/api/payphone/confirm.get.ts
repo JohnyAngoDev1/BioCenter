@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   if (statusFromUrl === 'already_paid' || statusFromUrl === 'paid') {
     console.log('[PayPhone Confirm] Vía rápida detectada por status en URL:', statusFromUrl);
     if (isAjax) return { status: 'success', orderId, clientTransactionId };
-    return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
+    return sendRedirect(event, `/payment/success?id=${orderId}&clientTransactionId=${clientTransactionId}`, 302);
   }
 
   if (!orderId || !clientTransactionId) {
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
       if (order && (order.payment_status === 'paid' || order.payphone_status === 'APPROVED')) {
         console.log('[PayPhone Confirm] Éxito: Pedido pagado en DB');
         if (isAjax) return { status: 'success', orderId, clientTransactionId };
-        return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
+        return sendRedirect(event, `/payment/success?id=${orderId}&clientTransactionId=${clientTransactionId}`, 302);
       }
     } catch (e) {
       console.warn('[PayPhone Confirm] Error en landingpay rapid check');
@@ -53,6 +53,12 @@ export default defineEventHandler(async (event) => {
     let redirectUrl = data.url || data.payload?.url || data.data?.url;
     
     if (redirectUrl) {
+      // Si la URL de redirección no tiene el ID, se lo añadimos
+      if (!redirectUrl.includes('clientTransactionId') && clientTransactionId) {
+        const separator = redirectUrl.includes('?') ? '&' : '?';
+        redirectUrl += `${separator}clientTransactionId=${clientTransactionId}`;
+      }
+
       console.log('>>> [REDIRECCIÓN ENCONTRADA] Saltando a URL:', redirectUrl);
       if (!isAjax) {
         return sendRedirect(event, redirectUrl, 302);
