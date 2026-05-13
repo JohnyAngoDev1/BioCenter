@@ -206,8 +206,13 @@ const formatPhone = (phone: string) => {
   return `+593${clean}`
 }
 
+const handleFinalSubmit = async () => {
+  currentStep.value = 3
+  await handlePaymentPreparation()
+}
+
 const handlePaymentPreparation = async () => {
-  if (cartCount.value === 0) return
+  if (cartCount.value === 0 || isProcessing.value) return
 
   isProcessing.value = true
   payphoneError.value = ''
@@ -433,7 +438,7 @@ watch(currentStep, async (step) => {
           <!-- BLOCK STEP 2: DIRECCION Y DATOS ============== -->
           <!-- ============================================== -->
           <div v-show="currentStep === 2" class="animate-[fade-in_0.4s_ease-out]">
-            <UForm :state="form" @submit="currentStep = 3" class="space-y-6">
+            <UForm :state="form" @submit="handleFinalSubmit" class="space-y-6">
               
               <!-- Información Personal -->
               <UCard class="rounded-2xl shadow-sm border border-gray-100">
@@ -595,7 +600,7 @@ watch(currentStep, async (step) => {
                   Volver al carrito
                 </UButton>
                 <!-- Boton submit para que UForm actúe -->
-                <UButton type="submit" size="xl" color="primary" class="rounded-full px-8 shadow-md">
+                <UButton type="submit" :loading="isProcessing" size="xl" color="primary" class="rounded-full px-8 shadow-md">
                   Continuar al Pago
                   <template #trailing>
                     <UIcon name="i-heroicons-arrow-right-20-solid" />

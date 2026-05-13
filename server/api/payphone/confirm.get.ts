@@ -18,11 +18,15 @@ export default defineEventHandler(async (event) => {
   try {
     // Llamada real al Proxy de AWS para confirmar el pago
     const confirmUrl = `${config.payphoneApiUrl}/confirm`;
+    console.log('[PayPhone Confirm] Llamando al Proxy AWS:', confirmUrl, { orderId, clientTransactionId });
+    
     const response = await axios.get(confirmUrl, {
-      params: { orderId, clientTransactionId }
+      params: { orderId, clientTransactionId },
+      timeout: 15000 // 15 segundos máximo para evitar que se quede cargando
     });
     
     const data = response.data;
+    console.log('[PayPhone Confirm] Respuesta recibida del Proxy');
     console.log('[PayPhone Confirm] Respuesta del Proxy:', JSON.stringify(data, null, 2));
 
     // El Proxy puede devolver la info en varios niveles
