@@ -4,38 +4,35 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const config = useRuntimeConfig();
   
-  console.log('[PayPhone Confirm] Verificando pago con Proxy AWS:', query);
-
-  // PayPhone suele enviar 'id', pero el proxy de AWS espera 'orderId'
-  const orderId = query.orderId || query.id;
-  const clientTransactionId = query.clientTransactionId;
+  const orderId = query.orderId as string;
+  const clientTransactionId = query.clientTransactionId as string;
+  const isAjax = getHeader(event, 'accept')?.includes('application/json') || query.ajax === 'true';
 
   if (!orderId || !clientTransactionId) {
-    console.error('[PayPhone Confirm] Faltan parámetros en la URL:', { orderId, clientTransactionId, fullQuery: query });
-    return sendRedirect(event, '/checkout?status=error&message=Parametros+de+confirmacion+faltantes', 302);
+    if (isAjax) return { status: 'error', message: 'Faltan parámetros' };
+    return sendRedirect(event, '/checkout?status=error&message=Faltan+parametros', 302);
   }
 
   try {
-    // 1. INTENTO RÁPIDO: Consultar directamente a tu API de pedidos
-    // Esto es mucho más rápido que el Proxy de AWS
+    // 1. INTENTO RÁPIDO: Consultar directamente a landingpay
     try {
       const orderUrl = `${config.apiUrl}order/${orderId}`;
-      console.log('[PayPhone Confirm] Consultando estado en landingpay:', orderUrl);
+      console.log('[PayPhone Confirm] Consultando landingpay:', orderUrl);
       const orderData = await $fetch<any>(orderUrl);
-      
       const order = orderData?.data || orderData;
+      
       if (order && (order.payment_status === 'paid' || order.payphone_status === 'APPROVED')) {
-        console.log('[PayPhone Confirm] Éxito: Pedido ya marcado como pagado en DB');
+        console.log('[PayPhone Confirm] Éxito: Pedido pagado en DB');
         if (isAjax) return { status: 'success', orderId, clientTransactionId };
         return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
       }
     } catch (e) {
-      console.warn('[PayPhone Confirm] No se pudo verificar en landingpay, intentando Proxy...');
+      console.warn('[PayPhone Confirm] Error en landingpay rapid check');
     }
 
-    // 2. INTENTO SEGUNDO: Llamada al Proxy de AWS (como respaldo)
+    // 2. INTENTO SEGUNDO: Llamada al Proxy de AWS
     const confirmUrl = `${config.payphoneApiUrl}/confirm`;
-    console.log('[PayPhone Confirm] Llamando al Proxy AWS (Fallback):', confirmUrl);
+    console.log('[PayPhone Confirm] Consultando Proxy AWS (Fallback)...');
     
     const response = await axios.get(confirmUrl, {
       params: { orderId, clientTransactionId },
@@ -45,7 +42,6 @@ export default defineEventHandler(async (event) => {
     const data = response.data;
     const result = data.payphoneResponse || data.data || data.payload || data.order || data;
     
-    // ... resto de la lógica de validación que ya tenemos ...
     const rootStatus = String(data.status || data.success || data.response || '').toUpperCase();
     const internalStatus = String(result.status || result.state || '').toUpperCase();
     const transStatus = String(result.transactionStatus || '').toUpperCase();
@@ -65,19 +61,21 @@ export default defineEventHandler(async (event) => {
       Number(result.statusCode) === 3;
 
     if (isApproved) {
+      console.log('[PayPhone Confirm] Pago Verificado');
       if (isAjax) return { status: 'success', orderId, clientTransactionId };
       return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
     } else {
-      const msg = result.message || 'Pago en proceso o no aprobado';
+      console.warn('[PayPhone Confirm] Pago No Aprobado/Pendiente');
+      const msg = 'Pago en proceso o no aprobado';
       if (isAjax) return { status: 'error', message: msg, debug: { proxyResponse: data } };
       return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(msg)}`, 302);
     }
 
   } catch (err: any) {
-    console.error('[PayPhone Confirm Error]:', err.response?.data || err.message);
-    if (getHeader(event, 'accept')?.includes('application/json')) {
-      return { status: 'error', message: 'Error interno de validación' };
-    }
-    return sendRedirect(event, '/checkout?status=error&message=Error+en+verificacion', 302);
+    console.error('[PayPhone Confirm Error]:', err.message);
+    const errorMsg = err.message.includes('timeout') ? 'El servidor de pago está tardando demasiado. Por favor, refresca la página en unos segundos.' : 'Error de validación';
+    
+    if (isAjax) return { status: 'error', message: errorMsg };
+    return sendRedirect(event, `/checkout?status=error&message=${encodeURIComponent(errorMsg)}`, 302);
   }
 });

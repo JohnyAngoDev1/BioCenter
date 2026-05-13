@@ -50,7 +50,8 @@ export default defineEventHandler(async (event) => {
       payWithCard: proxyData.data?.payWithCard || proxyData.data?.payWithPayPhone,
       orderId: orderId,
       clientTransactionId: payload.clientTransactionId || clientTransactionId,
-      details: proxyData
+      sentToProxy: awsPayload, // Lo que mandamos
+      details: proxyData       // Lo que recibimos
     };
   } catch (err: any) {
     console.error('[PayPhone Error]:', err.response?.data || err.message);
