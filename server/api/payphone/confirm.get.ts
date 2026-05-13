@@ -6,7 +6,15 @@ export default defineEventHandler(async (event) => {
   
   const orderId = query.orderId as string;
   const clientTransactionId = query.clientTransactionId as string;
+  const statusFromUrl = query.status as string;
   const isAjax = getHeader(event, 'accept')?.includes('application/json') || query.ajax === 'true';
+
+  // VIA RÁPIDA: Si el Proxy de AWS nos redirige con el estado de pagado
+  if (statusFromUrl === 'already_paid' || statusFromUrl === 'paid') {
+    console.log('[PayPhone Confirm] Vía rápida detectada por status en URL:', statusFromUrl);
+    if (isAjax) return { status: 'success', orderId, clientTransactionId };
+    return sendRedirect(event, `/payment/success?id=${orderId}`, 302);
+  }
 
   if (!orderId || !clientTransactionId) {
     if (isAjax) return { status: 'error', message: 'Faltan parámetros' };
