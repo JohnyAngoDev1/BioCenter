@@ -50,10 +50,13 @@ export default defineEventHandler(async (event) => {
       } catch (e) {}
     }
 
+    const payWithCardUrl = proxyData.data?.payWithCard || proxyData.data?.payWithPayPhone || proxyData.payWithCard || proxyData.url;
+    const isSuccess = proxyData.status === true || proxyData.response === true || !!payWithCardUrl;
+
     return {
-      status: proxyData.status === true || proxyData.response === true,
-      payWithCard: proxyData.data?.payWithCard || proxyData.data?.payWithPayPhone,
-      url: proxyData.data?.payWithCard || proxyData.data?.payWithPayPhone, // Alias para facilitar extracción
+      status: isSuccess,
+      payWithCard: payWithCardUrl,
+      url: payWithCardUrl, 
       orderId: orderId,
       clientTransactionId: payload.clientTransactionId || clientTransactionId,
       sentToProxy: awsPayload, 
