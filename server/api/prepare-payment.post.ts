@@ -22,8 +22,8 @@ export default defineEventHandler(async (event) => {
     "iva": 0,
     "reference": body.reference || "Pago BioCenter",
     "clientTransactionId": clientTransactionId,
-    "responseUrl": `https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod/confirm`,
-    "cancellationUrl": `https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod/cancel`
+    "responseUrl": `${origin}/api/payphone/confirm`,
+    "cancellationUrl": `${origin}/api/payphone/cancel`
   };
 
   console.log('[PayPhone] Enviando al Proxy:', JSON.stringify(awsPayload, null, 2));
