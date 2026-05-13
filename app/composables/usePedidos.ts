@@ -69,7 +69,7 @@ export function usePedidos() {
 
   const update = async (id: string, status: string) => {
     try {
-      const res = await api.put(`/order/${id}`, { status });
+      const res = await api.put(`/order/update/${id}`, { status });
       toast.add({ title: "Estado actualizado correctamente", color: "success" });
       return res.data?.data ?? res.data;
     } catch (error: any) {
