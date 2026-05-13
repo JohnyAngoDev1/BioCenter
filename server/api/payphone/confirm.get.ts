@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
       payphoneStatus === 'APPROVED' ||
       Number(result.statusCode) === 3;
 
-    const finalSuccessUrl = redirectUrl || `/payment/success?id=${orderId}`;
+    const finalSuccessUrl = redirectUrl || `/payment/success?id=${orderId}&clientTransactionId=${clientTransactionId}`;
 
     if (isApproved) {
       console.log('[PayPhone Confirm] Pago Verificado ->', finalSuccessUrl);

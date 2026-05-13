@@ -357,7 +357,6 @@ const handlePaymentPreparation = async () => {
   } catch (err: any) {
     payphoneError.value = 'Error de conexión con el servicio de pagos.'
     console.error('[Payphone]', err)
-  } finally {
     isProcessing.value = false
   }
 }
@@ -389,7 +388,9 @@ const startPaymentPolling = (orderId: string, clientTransactionId: string, popup
       
       // Si el usuario cierra el popup manualmente
       if (popup && popup.closed) {
-        // Hacemos una última comprobación antes de limpiar
+        clearInterval(pollingInterval)
+        isProcessing.value = false
+        console.log('[FRONTEND] El usuario cerró el popup manualmente.')
       }
     } catch (e) {}
   }, 3000)
@@ -450,6 +451,20 @@ watch(currentStep, async (step) => {
 
       <!-- Sistema Activo -->
       <div v-else class="flex flex-col lg:flex-row gap-8 items-start">
+        
+        <!-- MODAL DE CARGA / PROCESANDO -->
+        <UModal v-model="isProcessing" prevent-close :overlay="true">
+          <div class="p-10 text-center flex flex-col items-center gap-6">
+            <div class="relative">
+              <div class="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+              <UIcon name="i-heroicons-lock-closed-solid" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-xl" />
+            </div>
+            <div>
+              <h3 class="text-xl font-black text-black mb-2">Procesando Pago Seguro</h3>
+              <p class="text-gray-500 text-sm max-w-[280px]">Estamos verificando tu transacción con PayPhone. Por favor, no cierres esta ventana.</p>
+            </div>
+          </div>
+        </UModal>
         
         <!-- COLUMNA IZQUIERDA: Formularios / Wizard -->
         <div class="w-full lg:w-2/3 space-y-6">
