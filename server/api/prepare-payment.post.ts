@@ -22,13 +22,13 @@ export default defineEventHandler(async (event) => {
     "iva": 0,
     "reference": body.reference || "Pago BioCenter",
     "clientTransactionId": clientTransactionId,
-    // Forzamos la URL correcta según el entorno
+    // Forzamos la URL correcta según el entorno (Redirigimos al checkout para manejo interno)
     "responseUrl": origin.includes('localhost') 
-      ? `${origin}/api/payphone/confirm` 
-      : `https://www.biocenter.life/api/payphone/confirm`,
+      ? `${origin}/checkout` 
+      : `https://www.biocenter.life/checkout`,
     "cancellationUrl": origin.includes('localhost') 
-      ? `${origin}/api/payphone/cancel` 
-      : `https://www.biocenter.life/api/payphone/cancel`
+      ? `${origin}/checkout?status=cancel` 
+      : `https://www.biocenter.life/checkout?status=cancel`
   };
 
   console.log('[PayPhone] Enviando al Proxy:', JSON.stringify(awsPayload, null, 2));

@@ -279,7 +279,7 @@ const formatPhone = (phone: string) => {
 const handleFinalSubmit = async (event: any) => {
   // El evento solo se dispara si la validación del schema pasa
   currentStep.value = 3
-  await handlePaymentPreparation()
+  // La llamada a handlePaymentPreparation ahora es manejada por el watcher de currentStep
 }
 
 const handlePaymentPreparation = async () => {
@@ -393,7 +393,7 @@ const startPaymentPolling = (orderId: string, clientTransactionId: string, popup
         console.log('[FRONTEND] El usuario cerró el popup manualmente.')
       }
     } catch (e) {}
-  }, 3000)
+  }, 1000)
 }
 
 onUnmounted(() => {
@@ -453,7 +453,7 @@ watch(currentStep, async (step) => {
       <div v-else class="flex flex-col lg:flex-row gap-8 items-start">
         
         <!-- MODAL DE CARGA / PROCESANDO -->
-        <UModal v-model="isProcessing" prevent-close :overlay="true">
+        <UModal v-if="isProcessing" v-model="isProcessing" prevent-close :overlay="true">
           <div class="p-10 text-center flex flex-col items-center gap-6">
             <div class="relative">
               <div class="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
