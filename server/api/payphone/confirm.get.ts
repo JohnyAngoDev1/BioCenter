@@ -23,16 +23,31 @@ export default defineEventHandler(async (event) => {
     });
     
     const data = response.data;
-    console.log('[PayPhone Confirm] Respuesta del Proxy:', data);
+    console.log('[PayPhone Confirm] Respuesta del Proxy:', JSON.stringify(data, null, 2));
 
-    if (data.approved === true) {
-      return sendRedirect(event, `/payment/success?clientTransactionId=${clientTransactionId}`, 302);
+    // El Proxy puede devolver la info en varios niveles
+    const result = data.payphoneResponse || data.data || data.payload || data;
+    const isApproved = result.approved === true || result.status === 'Approved' || result.success === true;
+
+    // Detectamos si es una petición AJAX (desde el frontend) o navegación directa
+    const isAjax = getHeader(event, 'accept')?.includes('application/json') || query.ajax === 'true';
+
+    if (isApproved) {
+      console.log('[PayPhone Confirm] Pago Aprobado');
+      if (isAjax) return { status: 'success', orderId, clientTransactionId };
+      return sendRedirect(event, `/payment/success?id=${orderId}&clientTransactionId=${clientTransactionId}`, 302);
     } else {
-      return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(data.message || 'Pago no aprobado')}`, 302);
+      console.warn('[PayPhone Confirm] Pago no aprobado:', result);
+      const msg = result.message || 'Pago no aprobado';
+      if (isAjax) return { status: 'error', message: msg };
+      return sendRedirect(event, `/checkout?status=unapproved&message=${encodeURIComponent(msg)}`, 302);
     }
 
   } catch (err: any) {
     console.error('[PayPhone Confirm Error]:', err.response?.data || err.message);
+    if (getHeader(event, 'accept')?.includes('application/json')) {
+      return { status: 'error', message: 'Error interno de validación' };
+    }
     return sendRedirect(event, '/checkout?status=error&message=Error+en+verificacion', 302);
   }
 });

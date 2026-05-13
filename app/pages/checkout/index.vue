@@ -93,12 +93,43 @@ const userCancelled = ref(false)
 onMounted(async () => {
   const route = useRoute()
   
+  // 1. RECUPERAR DATOS DEL LOCALSTORAGE O DE LA URL
+  const urlOrderId = route.query.orderId as string
+  const urlCTId = route.query.clientTransactionId as string
+  const storedOrderId = localStorage.getItem('pending_order_id')
+  const storedCTId = localStorage.getItem('pending_client_transaction_id')
+
+  const orderId = urlOrderId || storedOrderId
+  const clientTransactionId = urlCTId || storedCTId
+
+  // Si detectamos una transacción que necesita ser verificada
+  if (orderId && clientTransactionId) {
+    console.log('>>> [FRONTEND] Detectada transacción pendiente:', orderId)
+    isProcessing.value = true
+    userCancelled.value = true // Bloqueamos el auto-disparo del watcher mientras verificamos
+    
+    try {
+      const { data } = await axios.get('/api/payphone/confirm', {
+        params: { orderId, clientTransactionId, ajax: 'true' }
+      })
+
+      localStorage.removeItem('pending_order_id')
+      localStorage.removeItem('pending_client_transaction_id')
+
+      if (data.status === 'success') {
+        cartStore.clearCart()
+        return navigateTo(`/payment/success?id=${orderId}`)
+      }
+    } catch (e) {
+      console.error('Error verificando pago:', e)
+    } finally {
+      isProcessing.value = false
+    }
+  }
+
   if (route.query.status === 'cancel') {
-    // Si viene de una cancelación, nos quedamos en el paso 3 pero mostramos el error
-    // y evitamos la redirección automática inmediata para que el usuario pueda darle a "Reintentar"
-    currentStep.value = 3
     userCancelled.value = true
-    payphoneError.value = 'El pago no pudo ser procesado o fue cancelado. ¿Deseas intentarlo de nuevo?'
+    payphoneError.value = 'El pago no pudo ser procesado o fue cancelado.'
     localStorage.setItem('bio_checkout_step', '3')
   } else {
     const savedStep = localStorage.getItem('bio_checkout_step')
@@ -109,6 +140,7 @@ onMounted(async () => {
       }
     }
   }
+
   const savedForm = localStorage.getItem('bio_checkout_form')
   if (savedForm) {
     try {
@@ -174,22 +206,6 @@ const formatPhone = (phone: string) => {
   return `+593${clean}`
 }
 
-const loadPayphoneAssets = (): Promise<void> =>
-  new Promise((resolve, reject) => {
-    if ((window as any).PPaymentButtonBox) { resolve(); return }
-
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css'
-    document.head.appendChild(link)
-
-    const script = document.createElement('script')
-    script.src = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js'
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error('No se pudo cargar el script de Payphone'))
-    document.head.appendChild(script)
-  })
-
 const handlePaymentPreparation = async () => {
   if (cartCount.value === 0) return
 
@@ -197,9 +213,8 @@ const handlePaymentPreparation = async () => {
   payphoneError.value = ''
 
   try {
-    // Eliminamos el hack del centavo y usamos los valores reales
     const subtotal = cartTotal.value
-    const iva = 0 // El Proxy de AWS ya calcula el IVA automáticamente
+    const iva = 0
 
     const items = cart.value.map((item) => {
       const quantity = Number(item.quantity || 1)
@@ -220,13 +235,13 @@ const handlePaymentPreparation = async () => {
 
     const { data } = await axios.post('/api/prepare-payment', {
       source_module: 'store',
-      full_name: `${form.value.firstName} ${form.value.lastName}`.trim() || 'Cliente BioCenter',
+      full_name: `${form.value.firstName} ${form.value.lastName}`.trim(),
       document_number: form.value.documentNumber || '1700000000',
       email: form.value.email,
       phoneNumber: formatPhone(form.value.phone),
       main_street: form.value.callePrincipal || 'Av. Principal',
       secondary_street: form.value.calleSecundaria || 'S/N',
-      house_number: '000', // Podrías añadir un campo si fuera necesario
+      house_number: '000',
       city: cantonLabel,
       state: provinciaLabel,
       postalCode: '170101',
@@ -239,28 +254,18 @@ const handlePaymentPreparation = async () => {
       reference: `Pedido BioCenter - ${form.value.lastName}`
     })
 
-    const totalCentavos = Math.round((subtotal + iva) * 100)
-    
-    await loadPayphoneAssets()
-    await nextTick()
-
-    // Limpiar instancia anterior si el usuario regresa al step 3
-    const container = document.getElementById('pp-button')
-    if (container) container.innerHTML = ''
-
     if (data.status && data.payWithCard) {
-      // REDIRECCIÓN AUTOMÁTICA AL LINK DE PAGO
-      // Esto evita los problemas de autorización del SDK y es más rápido
+      // GUARDAR PERSISTENCIA ANTES DE REDIRIGIR
+      if (data.orderId && data.clientTransactionId) {
+        localStorage.setItem('pending_order_id', data.orderId)
+        localStorage.setItem('pending_client_transaction_id', data.clientTransactionId)
+      }
       window.location.href = data.payWithCard
-    } else if (data.status) {
-      mountPayphoneSDK(data)
     } else {
-      const detail = data.details?.error?.errors?.[0]?.errorDescriptions?.[0] || data.details?.message || 'Error en la preparación'
-      payphoneError.value = `Error: ${detail}`
-      isProcessing.value = false
+      payphoneError.value = data.details?.message || 'Error al preparar el pago'
     }
   } catch (err: any) {
-    payphoneError.value = err.response?.data?.message ?? 'Error al preparar el pago. Intenta nuevamente.'
+    payphoneError.value = 'Error de conexión con el servicio de pagos.'
     console.error('[Payphone]', err)
   } finally {
     isProcessing.value = false
