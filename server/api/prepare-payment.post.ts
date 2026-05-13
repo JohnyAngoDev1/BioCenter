@@ -60,7 +60,13 @@ export default defineEventHandler(async (event) => {
       details: proxyData       
     };
   } catch (err: any) {
-    console.error('[PayPhone Error]:', err.response?.data || err.message);
-    return { status: false, error: err.message };
+    const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message;
+    console.error('[PayPhone Error]:', JSON.stringify(err.response?.data || err.message));
+    return { 
+      status: false, 
+      message: errorMessage,
+      error: errorMessage, 
+      details: err.response?.data || { message: err.message }
+    };
   }
 });
