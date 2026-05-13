@@ -48,6 +48,13 @@ export default defineEventHandler(async (event) => {
     });
     
     const data = response.data;
+
+    // Si el Proxy nos da una URL de retorno específica (como la que viste con status=paid), la seguimos
+    if (data.url && !isAjax) {
+      console.log('[PayPhone Confirm] Redirigiendo a URL del Proxy:', data.url);
+      return sendRedirect(event, data.url, 302);
+    }
+
     const result = data.payphoneResponse || data.data || data.payload || data.order || data;
     
     const rootStatus = String(data.status || data.success || data.response || '').toUpperCase();
@@ -59,10 +66,12 @@ export default defineEventHandler(async (event) => {
       data.status === true || 
       data.success === true || 
       data.response === true ||
+      data.status === 'paid' ||
       result.approved === true || 
       result.success === true || 
       result.payment_status === 'paid' ||
       rootStatus === 'APPROVED' || 
+      rootStatus === 'PAID' ||
       internalStatus === 'APPROVED' || 
       transStatus === 'APPROVED' ||
       payphoneStatus === 'APPROVED' ||
