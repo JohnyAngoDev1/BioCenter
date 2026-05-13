@@ -7,7 +7,7 @@ import { useCart } from '~/composables/useCart'
 const config = useRuntimeConfig()
 const currentStep = ref(1)
 
-const { cart, cartTotal, cartCount, updateQuantity, removeFromCart } = useCart()
+const { cart, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart } = useCart()
 
 const needsAddress = computed(() => {
   return cart.value.some(item => item.isApplyAddress !== false)
@@ -179,8 +179,12 @@ onMounted(async () => {
       localStorage.removeItem('pending_client_transaction_id')
 
       if (data.status === 'success') {
-        cartStore.clearCart()
-        return navigateTo(`/payment/success?id=${orderId}`)
+        const targetUrl = data.url || `/payment/success?id=${orderId}`
+        localStorage.removeItem('pending_order_id')
+        localStorage.removeItem('pending_client_transaction_id')
+        clearCart()
+        window.location.href = targetUrl
+        return
       }
     } catch (e) {
       console.error('Error verificando pago:', e)
@@ -373,10 +377,14 @@ const startPaymentPolling = (orderId: string, clientTransactionId: string, popup
         clearInterval(pollingInterval)
         if (popup && !popup.closed) popup.close()
         
+        const targetUrl = data.url || `/payment/success?id=${orderId}`
         localStorage.removeItem('pending_order_id')
         localStorage.removeItem('pending_client_transaction_id')
-        cartStore.clearCart()
-        return navigateTo(`/payment/success?id=${orderId}`)
+        clearCart()
+        
+        console.log('>>> [FRONTEND] Pago confirmado, redirigiendo a:', targetUrl)
+        window.location.href = targetUrl
+        return
       }
       
       // Si el usuario cierra el popup manualmente

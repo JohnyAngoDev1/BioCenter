@@ -81,16 +81,18 @@ export default defineEventHandler(async (event) => {
       payphoneStatus === 'APPROVED' ||
       Number(result.statusCode) === 3;
 
+    const finalSuccessUrl = redirectUrl || `/payment/success?id=${orderId}`;
+
     if (isApproved) {
-      console.log('[PayPhone Confirm] Pago Verificado');
+      console.log('[PayPhone Confirm] Pago Verificado ->', finalSuccessUrl);
       if (isAjax) return { 
         status: 'success', 
         orderId, 
         clientTransactionId, 
-        url: redirectUrl || `/payment/success?id=${orderId}`,
+        url: finalSuccessUrl,
         data: result 
       };
-      return sendRedirect(event, redirectUrl || `/payment/success?id=${orderId}`, 302);
+      return sendRedirect(event, finalSuccessUrl, 302);
     } else {
       console.warn('[PayPhone Confirm] Pago No Aprobado/Pendiente');
       const msg = 'Pago en proceso o no aprobado';
