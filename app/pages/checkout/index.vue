@@ -227,6 +227,10 @@ onMounted(async () => {
 
 watch(currentStep, (newStep) => {
   localStorage.setItem('bio_checkout_step', newStep.toString())
+   // Si estamos en el paso 2 pero no se requiere dirección, saltamos al 3
+  if (newStep === 2 && !needsAddress.value) {
+    currentStep.value = 3
+  }
 })
 
 watch(form, (newForm) => {
@@ -580,7 +584,7 @@ watch(currentStep, async (step) => {
               </UCard>
 
               <!-- Dirección de Entrega -->
-              <UCard class="rounded-2xl shadow-sm border border-gray-100">
+              <UCard v-if="needsAddress" class="rounded-2xl shadow-sm border border-gray-100">
                 <template #header>
                   <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
