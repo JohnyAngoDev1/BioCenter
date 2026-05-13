@@ -27,14 +27,19 @@ export default defineEventHandler(async (event) => {
 
     // El Proxy puede devolver la info en varios niveles
     const result = data.payphoneResponse || data.data || data.payload || data;
+    console.log('[PayPhone Confirm] Result extracted:', JSON.stringify(result, null, 2));
     
-    // Validación de aprobación robusta (case-insensitive y flexible)
+    // Validación de aprobación ultra-robusta
     const status = String(result.status || result.state || '').toUpperCase();
+    const transStatus = String(result.transactionStatus || '').toUpperCase();
+    
     const isApproved = 
       result.approved === true || 
       result.success === true || 
       status === 'APPROVED' || 
       status === 'SUCCESS' ||
+      transStatus === 'APPROVED' ||
+      result.statusCode === 3 ||
       result.transactionStatus === 'Approved';
 
     // Detectamos si es una petición AJAX (desde el frontend) o navegación directa
