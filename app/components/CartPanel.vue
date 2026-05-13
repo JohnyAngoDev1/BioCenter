@@ -28,7 +28,7 @@ const handleCheckout = () => {
         <h3 class="text-lg font-black text-black tracking-tight leading-none">
           Mi Carrito
         </h3>
-        <UBadge v-if="cartCount > 0" color="primary" size="xs" class="rounded-full px-2 ml-auto">
+        <UBadge v-if="cartCount > 0" color="error" size="xs" class="rounded-full px-2 ml-auto">
           {{ cartCount }}
         </UBadge>
       </div>

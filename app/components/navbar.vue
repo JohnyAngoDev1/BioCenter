@@ -47,7 +47,7 @@ const handleCheckout = () => {
                 >
                     <UBadge
                         v-if="cartCount > 0"
-                        color="primary"
+                        color="error"
                         size="xs"
                         class="absolute -top-1 -right-1 rounded-full px-1 min-w-[20px] h-[20px] flex items-center justify-center font-bold"
                     >

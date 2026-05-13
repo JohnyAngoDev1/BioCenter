@@ -54,9 +54,18 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
           class="w-full"
           icon="i-lucide-lock"
           autocomplete="current-password"
-          :trailing-icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-          @click:trailing="showPassword = !showPassword"
-        />
+          :ui="{ icon: { trailing: { pointer: '' } } }"
+        >
+          <template #trailing>
+            <UButton
+              color="gray"
+              variant="ghost"
+              :icon="showPassword ? 'i-heroicons-eye-slash-20-solid' : 'i-heroicons-eye-20-solid'"
+              :padded="false"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </UInput>
       </UFormField>
 
       <UButton
