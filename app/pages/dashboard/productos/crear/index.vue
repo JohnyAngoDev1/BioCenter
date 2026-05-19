@@ -6,6 +6,7 @@ const router = useRouter();
 
 const form = ref({
   sku: "",
+  url: "",
   title: "",
   description: "",
   longDescription: "",

@@ -1,5 +1,7 @@
 export interface Service {
     id: string | number;
+    sku?: string;
+    url?: string;
     title: string;
     description: string;
     longDescription?: string;

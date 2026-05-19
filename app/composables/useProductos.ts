@@ -1,6 +1,7 @@
 export interface Producto {
   _id?: string;
   sku?: string;
+  url?: string;
   title: string;
   description: string;
   longDescription?: string;

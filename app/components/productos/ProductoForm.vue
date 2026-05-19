@@ -102,6 +102,15 @@ function onImageFile(event: Event) {
         </div>
       </UFormField>
 
+      <UFormField label="URL de destino" class="md:col-span-2">
+        <UInput
+          :model-value="form.url"
+          placeholder="https://... (si está vacío, se usa la página del producto por defecto)"
+          class="w-full"
+          @update:model-value="update('url', $event)"
+        />
+      </UFormField>
+
       <UFormField label="Categoría" required>
         <UInput
           :model-value="form.category"
