@@ -29,7 +29,8 @@ const filtered = computed(() => {
     (p) =>
       p.title.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
-      (p.badge ?? "").toLowerCase().includes(q),
+      (p.badge ?? "").toLowerCase().includes(q) ||
+      (p.sku ?? "").toLowerCase().includes(q),
   );
 });
 
@@ -47,6 +48,7 @@ watch([search, pageSize], () => {
 const columns: TableColumn<Producto>[] = [
   { accessorKey: "image", header: "Imagen" },
   { accessorKey: "title", header: "Título" },
+  { accessorKey: "sku", header: "SKU" },
   { accessorKey: "category", header: "Categoría" },
   { accessorKey: "price", header: "Precio" },
   { accessorKey: "badge", header: "Badge" },
@@ -127,6 +129,13 @@ async function confirmDelete() {
               <UIcon name="i-lucide-image" class="size-5 text-gray-400" />
             </div>
           </div>
+        </template>
+
+        <template #sku-cell="{ row }">
+          <span v-if="row.original.sku" class="font-mono text-xs font-medium text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
+            {{ row.original.sku }}
+          </span>
+          <span v-else class="text-gray-300">—</span>
         </template>
 
         <template #title-cell="{ row }">

@@ -10,6 +10,8 @@ export default defineEventHandler(async (event) => {
             headers: token ? { Authorization: token } : {},
         });
 
+        console.log(res)
+
         const data = res?.data ?? res;
 
         if (!Array.isArray(data)) return [];

@@ -5,6 +5,7 @@ const { create } = useProductos();
 const router = useRouter();
 
 const form = ref({
+  sku: "",
   title: "",
   description: "",
   longDescription: "",

@@ -35,6 +35,32 @@ function removeFeature(index: number) {
   );
 }
 
+const STOPWORDS = new Set(['de', 'la', 'el', 'los', 'las', 'con', 'y', 'o', 'a', 'en', 'por', 'del', 'un', 'una', 'al']);
+
+function generateSku(title: string): string {
+  const words = title
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(w => w.length > 0 && !STOPWORDS.has(w));
+  const parts = words.slice(0, 3).map(w => w.slice(0, 3));
+  return ['pd', ...parts].join('-');
+}
+
+const skuAutoMode = ref(!props.modelValue.sku);
+
+watch(() => form.value.title, (title) => {
+  if (skuAutoMode.value) {
+    emit("update:modelValue", { ...props.modelValue, title, sku: generateSku(title ?? '') });
+  }
+});
+
+function onSkuInput(val: unknown) {
+  const v = String(val);
+  skuAutoMode.value = !v;
+  update('sku', v);
+}
+
 const imagePreview = computed(() => form.value.image || null);
 const imageInput = ref<HTMLInputElement | null>(null);
 
@@ -59,6 +85,21 @@ function onImageFile(event: Event) {
           class="w-full"
           @update:model-value="update('title', $event)"
         />
+      </UFormField>
+
+      <UFormField label="SKU">
+        <div class="flex items-center gap-2 w-full">
+          <UInput
+            :model-value="form.sku"
+            placeholder="Auto-generado del título"
+            class="flex-1 font-mono"
+            @update:model-value="onSkuInput($event)"
+          />
+          <span
+            v-if="skuAutoMode"
+            class="shrink-0 text-xs text-primary-500 bg-primary-50 px-2 py-1 rounded font-medium"
+          >Auto</span>
+        </div>
       </UFormField>
 
       <UFormField label="Categoría" required>
