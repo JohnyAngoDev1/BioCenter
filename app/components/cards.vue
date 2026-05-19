@@ -34,8 +34,17 @@ const filteredServices = computed(() => {
   return list
 })
 
+const BASE_URL = "https://www.biocenter.life";
+
 const openDetails = (item: Service) => {
-  navigateTo(`/servicio/${item.slug}`)
+  if (item.url) {
+    const destino = item.url.startsWith("http")
+      ? item.url
+      : `/${item.url.replace(/^\//, "")}`;
+    navigateTo(destino, { external: item.url.startsWith("http") });
+    return;
+  }
+  navigateTo(`/servicio/${item.slug}`);
 }
 
 const handleAddToCart = (item: Service) => {
