@@ -8,6 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [Partial<Producto>];
+  "update:imageFile": [File | null];
   submit: [];
 }>();
 
@@ -85,17 +86,26 @@ function onSkuInput(val: unknown) {
   update("sku", v);
 }
 
-const imagePreview = computed(() => form.value.image || null);
+const imageFile = ref<File | null>(null);
 const imageInput = ref<HTMLInputElement | null>(null);
+
+const imagePreview = computed(() => {
+  if (imageFile.value) return URL.createObjectURL(imageFile.value);
+  return form.value.image || null;
+});
 
 function onImageFile(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    update("image", e.target?.result as string);
-  };
-  reader.readAsDataURL(file);
+  imageFile.value = file;
+  emit("update:imageFile", file);
+}
+
+function clearImage() {
+  imageFile.value = null;
+  emit("update:imageFile", null);
+  update("image", "");
+  if (imageInput.value) imageInput.value.value = "";
 }
 </script>
 
@@ -177,7 +187,7 @@ function onImageFile(event: Event) {
               color="error"
               variant="solid"
               class="absolute top-2 right-2 rounded-full"
-              @click="update('image', '')"
+              @click="clearImage"
             />
           </div>
           <div class="flex gap-2">

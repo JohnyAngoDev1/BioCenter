@@ -11,6 +11,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    firmarArchivo: "",
     catalogToken: "",
     payphoneApiUrl: "https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod",
     payphoneToken:

@@ -2,6 +2,7 @@
 definePageMeta({ middleware: "auth", layout: "dashboard" });
 
 const { create } = useProductos();
+const { uploadImage } = useS3Upload();
 const router = useRouter();
 
 const form = ref({
@@ -20,6 +21,7 @@ const form = ref({
   isApplyIva: false,
 });
 
+const imageFile = ref<File | null>(null);
 const loading = ref(false);
 
 async function handleSubmit() {
@@ -28,6 +30,9 @@ async function handleSubmit() {
   }
   loading.value = true;
   try {
+    if (imageFile.value) {
+      form.value.image = await uploadImage(imageFile.value, "biocenter/products");
+    }
     await create(form.value);
     await router.push("/dashboard/productos");
   } finally {
@@ -54,7 +59,7 @@ async function handleSubmit() {
     </div>
 
     <UCard class="max-w-4xl">
-      <ProductosProductoForm v-model="form" :loading="loading">
+      <ProductosProductoForm v-model="form" :loading="loading" @update:image-file="imageFile = $event">
         <template #actions>
           <UButton variant="ghost" color="neutral" to="/dashboard/productos">
             Cancelar
