@@ -12,6 +12,7 @@ export interface Producto {
   features?: string[];
   isApplyPay?: boolean;
   isApplyAddress?: boolean;
+  isApplyIva?: boolean;
 }
 
 export function useProductos() {

@@ -14,7 +14,7 @@ if (error.value || !producto.value) {
   await navigateTo("/dashboard/productos");
 }
 
-const form = ref({ ...producto.value });
+const form = ref({ isApplyIva: false, ...producto.value });
 const loading = ref(false);
 
 async function handleSubmit() {

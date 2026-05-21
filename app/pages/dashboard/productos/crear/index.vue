@@ -17,6 +17,7 @@ const form = ref({
   features: [] as string[],
   isApplyPay: true,
   isApplyAddress: true,
+  isApplyIva: false,
 });
 
 const loading = ref(false);

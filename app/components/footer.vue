@@ -45,13 +45,48 @@ const { footerLinks } = useNavigation()
       <!-- Columna 3: Contacto -->
       <section class="space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
         <h3 class="font-bold text-black uppercase text-xs tracking-widest">{{ t('footer_nav_column_2_title') }}</h3>
-        <div class="flex flex-col gap-4">
-          <a :href="'tel:' + t('contactus_info_phone').replace(/\s+/g, '')" class="text-gray-400 hover:text-primary text-sm font-medium transition-colors">
+        <div class="flex flex-col gap-4 items-center md:items-start">
+          <a :href="'tel:' + t('contactus_info_phone').replace(/\s+/g, '')" class="text-gray-400 hover:text-primary text-sm font-medium transition-colors flex items-center gap-2">
+            <UIcon name="i-heroicons-phone" class="size-4 shrink-0 text-primary-500" />
             {{ t('contactus_info_phone') }}
           </a>
-          <a :href="'mailto:' + t('contactus_info_email')" class="text-gray-400 hover:text-primary text-sm font-medium transition-colors truncate">
+          <a :href="'mailto:' + t('contactus_info_email')" class="text-gray-400 hover:text-primary text-sm font-medium transition-colors truncate flex items-center gap-2">
+            <UIcon name="i-heroicons-envelope" class="size-4 shrink-0 text-primary-500" />
             {{ t('contactus_info_email') }}
           </a>
+          <div class="text-gray-400 text-sm font-medium leading-relaxed max-w-[280px] flex items-start gap-2">
+            <UIcon name="i-heroicons-map-pin" class="size-4 shrink-0 mt-0.5 text-primary-500" />
+            <span>{{ t('contactus_info_address') }}</span>
+          </div>
+          <div class="flex items-center gap-3 pt-2">
+            <UButton
+              icon="i-simple-icons-facebook"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              class="hover:text-primary hover:bg-primary/10 rounded-full"
+              :to="t('contactus_social_facebook')"
+              target="_blank"
+            />
+            <UButton
+              icon="i-simple-icons-instagram"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              class="hover:text-primary hover:bg-primary/10 rounded-full"
+              :to="t('contactus_social_instagram')"
+              target="_blank"
+            />
+            <UButton
+              icon="i-simple-icons-tiktok"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              class="hover:text-primary hover:bg-primary/10 rounded-full"
+              :to="t('contactus_social_tiktok')"
+              target="_blank"
+            />
+          </div>
         </div>
       </section>
 

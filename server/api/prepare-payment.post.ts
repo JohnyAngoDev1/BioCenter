@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     "phoneNumber": body.phoneNumber || "+593999999999",
     "items": body.items,
     "subtotal": Number(body.subtotal || 0),
-    "iva": 0,
+    "iva": Number(body.iva || 0),
     "reference": body.reference || "Pago BioCenter",
     "clientTransactionId": clientTransactionId,
     // Forzamos la URL correcta según el entorno (Redirigimos al checkout para manejo interno)

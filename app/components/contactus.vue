@@ -74,9 +74,30 @@ const items = computed(() => [
               {{ t('contactus_social_title') }}
             </p>
             <div class="flex gap-4">
-              <UButton icon="zmdi:globe" variant="ghost" />
-              <UButton icon="ic:baseline-grid-view" variant="ghost" />
-              <UButton icon="material-symbols:share-outline" variant="ghost" />
+              <UButton
+                icon="i-simple-icons-facebook"
+                variant="ghost"
+                color="white"
+                class="hover:bg-white/10 rounded-full"
+                :to="t('contactus_social_facebook')"
+                target="_blank"
+              />
+              <UButton
+                icon="i-simple-icons-instagram"
+                variant="ghost"
+                color="white"
+                class="hover:bg-white/10 rounded-full"
+                :to="t('contactus_social_instagram')"
+                target="_blank"
+              />
+              <UButton
+                icon="i-simple-icons-tiktok"
+                variant="ghost"
+                color="white"
+                class="hover:bg-white/10 rounded-full"
+                :to="t('contactus_social_tiktok')"
+                target="_blank"
+              />
             </div>
           </div>
         </div>

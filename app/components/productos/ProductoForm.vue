@@ -35,30 +35,54 @@ function removeFeature(index: number) {
   );
 }
 
-const STOPWORDS = new Set(['de', 'la', 'el', 'los', 'las', 'con', 'y', 'o', 'a', 'en', 'por', 'del', 'un', 'una', 'al']);
+const STOPWORDS = new Set([
+  "de",
+  "la",
+  "el",
+  "los",
+  "las",
+  "con",
+  "y",
+  "o",
+  "a",
+  "en",
+  "por",
+  "del",
+  "un",
+  "una",
+  "al",
+]);
 
 function generateSku(title: string): string {
   const words = title
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .split(/\s+/)
-    .filter(w => w.length > 0 && !STOPWORDS.has(w));
-  const parts = words.slice(0, 3).map(w => w.slice(0, 3));
-  return ['pd', ...parts].join('-');
+    .filter((w) => w.length > 0 && !STOPWORDS.has(w));
+  const parts = words.slice(0, 3).map((w) => w.slice(0, 3));
+  return ["pd", ...parts].join("-");
 }
 
 const skuAutoMode = ref(!props.modelValue.sku);
 
-watch(() => form.value.title, (title) => {
-  if (skuAutoMode.value) {
-    emit("update:modelValue", { ...props.modelValue, title, sku: generateSku(title ?? '') });
-  }
-});
+watch(
+  () => form.value.title,
+  (title) => {
+    if (skuAutoMode.value) {
+      emit("update:modelValue", {
+        ...props.modelValue,
+        title,
+        sku: generateSku(title ?? ""),
+      });
+    }
+  },
+);
 
 function onSkuInput(val: unknown) {
   const v = String(val);
   skuAutoMode.value = !v;
-  update('sku', v);
+  update("sku", v);
 }
 
 const imagePreview = computed(() => form.value.image || null);
@@ -98,7 +122,8 @@ function onImageFile(event: Event) {
           <span
             v-if="skuAutoMode"
             class="shrink-0 text-xs text-primary-500 bg-primary-50 px-2 py-1 rounded font-medium"
-          >Auto</span>
+            >Auto</span
+          >
         </div>
       </UFormField>
 
@@ -202,11 +227,15 @@ function onImageFile(event: Event) {
       </UFormField>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 rounded-xl border border-gray-100 bg-gray-50 p-4">
+    <div
+      class="grid grid-cols-1 gap-4 md:grid-cols-3 rounded-xl border border-gray-100 bg-gray-50 p-4"
+    >
       <div class="flex items-center justify-between gap-4">
         <div>
           <p class="text-sm font-semibold text-gray-800">Requiere pago</p>
-          <p class="text-xs text-gray-500">Muestra el botón "Añadir al carrito"</p>
+          <p class="text-xs text-gray-500">
+            Muestra el botón "Añadir al carrito"
+          </p>
         </div>
         <USwitch
           :model-value="form.isApplyPay !== false"
@@ -216,11 +245,25 @@ function onImageFile(event: Event) {
       <div class="flex items-center justify-between gap-4">
         <div>
           <p class="text-sm font-semibold text-gray-800">Requiere dirección</p>
-          <p class="text-xs text-gray-500">Solicita dirección de entrega en el checkout</p>
+          <p class="text-xs text-gray-500">
+            Solicita dirección de entrega en el checkout
+          </p>
         </div>
         <USwitch
           :model-value="form.isApplyAddress !== false"
           @update:model-value="update('isApplyAddress', $event)"
+        />
+      </div>
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold text-gray-800">Aplica IVA</p>
+          <p class="text-xs text-gray-500">
+            Calcula IVA 15% sobre este producto
+          </p>
+        </div>
+        <USwitch
+          :model-value="form.isApplyIva === true"
+          @update:model-value="update('isApplyIva', $event)"
         />
       </div>
     </div>
@@ -233,7 +276,10 @@ function onImageFile(event: Event) {
           :key="i"
           class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
         >
-          <UIcon name="i-lucide-check-circle-2" class="size-4 shrink-0 text-primary" />
+          <UIcon
+            name="i-lucide-check-circle-2"
+            class="size-4 shrink-0 text-primary"
+          />
           <span class="flex-1 text-sm text-gray-700">{{ feature }}</span>
           <UButton
             icon="i-lucide-x"
@@ -244,8 +290,13 @@ function onImageFile(event: Event) {
           />
         </div>
 
-        <div v-if="!(form.features?.length)" class="rounded-lg border border-dashed border-gray-200 py-4 text-center">
-          <p class="text-sm text-gray-400">Sin características. Agrega la primera abajo.</p>
+        <div
+          v-if="!form.features?.length"
+          class="rounded-lg border border-dashed border-gray-200 py-4 text-center"
+        >
+          <p class="text-sm text-gray-400">
+            Sin características. Agrega la primera abajo.
+          </p>
         </div>
 
         <div class="flex gap-2 pt-1">

@@ -13,4 +13,6 @@ export interface Service {
     slug?: string;
     isApplyPay?: boolean;
     isApplyAddress?: boolean;
+    isApplyIva?: boolean;
 }
+

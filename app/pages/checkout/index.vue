@@ -1,13 +1,39 @@
 <script setup lang="ts">
 import axios from 'axios'
 import * as z from 'zod'
-import { ref, watch, onMounted, nextTick } from '#imports'
+import { ref, watch, onMounted, nextTick, computed } from '#imports'
 import { useCart } from '~/composables/useCart'
 
 const config = useRuntimeConfig()
 const currentStep = ref(1)
 
 const { cart, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart } = useCart()
+
+const IVA_RATE = 0.15
+
+const subtotal0 = computed(() => {
+  const val = cart.value
+    .filter(item => !item.isApplyIva)
+    .reduce((acc, item) => acc + (item.price * item.quantity), 0)
+  return Number(val.toFixed(2))
+})
+
+const subtotal15 = computed(() => {
+  const val = cart.value
+    .filter(item => item.isApplyIva)
+    .reduce((acc, item) => acc + ((item.price / 1.15) * item.quantity), 0)
+  return Number(val.toFixed(2))
+})
+
+const calculatedIva = computed(() => {
+  const val = cart.value
+    .filter(item => item.isApplyIva)
+    .reduce((acc, item) => {
+      const base = item.price / 1.15
+      return acc + ((item.price - base) * item.quantity)
+    }, 0)
+  return Number(val.toFixed(2))
+})
 
 const needsAddress = computed(() => {
   return cart.value.some(item => item.isApplyAddress !== false)
@@ -289,12 +315,13 @@ const handlePaymentPreparation = async () => {
   payphoneError.value = ''
 
   try {
-    const subtotal = cartTotal.value
-    const iva = 0
+    const subtotal = Number((subtotal0.value + subtotal15.value).toFixed(2))
+    const iva = calculatedIva.value
 
     const items = cart.value.map((item) => {
       const quantity = Number(item.quantity || 1)
-      const unitPrice = Number(item.price || 0)
+      const basePrice = item.isApplyIva ? (item.price / 1.15) : item.price
+      const unitPrice = Number(basePrice.toFixed(2))
       
       return {
         kind: 'service',
@@ -302,7 +329,8 @@ const handlePaymentPreparation = async () => {
         name_snapshot: item.title,
         quantity: quantity,
         unit_price: unitPrice,
-        total_price: unitPrice * quantity
+        total_price: Number((unitPrice * quantity).toFixed(2)),
+        isApplyIva: !!item.isApplyIva,
       }
     })
 
@@ -801,9 +829,17 @@ watch(currentStep, async (step) => {
               
               <!-- Subtotals Mini -->
               <div class="space-y-3">
-                <div class="flex items-center justify-between text-sm">
-                  <span class="text-gray-500 font-medium">Subtotal</span>
-                  <span class="font-bold text-black">${{ cartTotal.toFixed(2) }}</span>
+                <div v-if="subtotal0 > 0" class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500 font-medium">Subtotal 0%</span>
+                  <span class="font-bold text-black">${{ subtotal0.toFixed(2) }}</span>
+                </div>
+                <div v-if="subtotal15 > 0" class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500 font-medium">Subtotal IVA 15%</span>
+                  <span class="font-bold text-black">${{ subtotal15.toFixed(2) }}</span>
+                </div>
+                <div v-if="calculatedIva > 0" class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500 font-medium">IVA 15%</span>
+                  <span class="font-bold text-black">${{ calculatedIva.toFixed(2) }}</span>
                 </div>
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-gray-500 font-medium">Descuentos</span>
