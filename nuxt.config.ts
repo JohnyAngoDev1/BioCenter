@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    firmarArchivo: "",
+    firmarArchivo: process.env.NUXT_FIRMAR_ARCHIVO || process.env.FIRMAR_ARCHIVO || "",
     catalogToken: "",
     payphoneApiUrl: "https://5iedvg3cah.execute-api.us-east-1.amazonaws.com/prod",
     payphoneToken:
