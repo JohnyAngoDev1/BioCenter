@@ -6,8 +6,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "path y filename son requeridos" });
   }
 
+  const baseUrl = config.firmarArchivo || process.env.NUXT_FIRMAR_ARCHIVO || process.env.FIRMAR_ARCHIVO;
+
+  if (!baseUrl) {
+    throw createError({ statusCode: 500, message: "FIRMAR_ARCHIVO no configurado" });
+  }
+
   const res = await $fetch<{ signedUrl: string; url_save: string }>(
-    `${config.firmarArchivo}/signedurl`,
+    `${baseUrl}/signedurl`,
     { params: { path, filename } },
   );
 
