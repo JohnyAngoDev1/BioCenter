@@ -89,9 +89,7 @@ const goBack = () => {
       <!-- Service Details -->
       <div v-else-if="selectedService" class="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 lg:gap-16 items-center">
         <!-- Side: Image -->
-        <div class="w-full md:w-1/2 h-64 sm:h-96 md:h-[550px] shrink-0 relative bg-secondary rounded-3xl overflow-hidden shadow-2xl shadow-primary/10">
-          <NuxtImg :src="selectedService.image" class="w-full h-full object-cover absolute inset-0" />
-        </div>
+        <ProductImageCarousel :images="selectedService.image ?? []" class="w-full md:w-1/2 shrink-0" />
 
         <!-- Side: Info -->
         <div class="w-full md:w-1/2 flex flex-col md:py-4 lg:py-8">

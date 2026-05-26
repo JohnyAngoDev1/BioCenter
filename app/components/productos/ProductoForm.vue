@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [Partial<Producto>];
-  "update:imageFile": [File | null];
+  "update:imageFiles": [File[]];
   submit: [];
 }>();
 
@@ -86,26 +86,46 @@ function onSkuInput(val: unknown) {
   update("sku", v);
 }
 
-const imageFile = ref<File | null>(null);
+const imageFiles = ref<File[]>([]);
 const imageInput = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
 
-const imagePreview = computed(() => {
-  if (imageFile.value) return URL.createObjectURL(imageFile.value);
-  return form.value.image || null;
-});
+// Previews de archivos nuevos seleccionados
+const filePreviews = computed(() =>
+  imageFiles.value.map((f) => URL.createObjectURL(f)),
+);
 
-function onImageFile(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file) return;
-  imageFile.value = file;
-  emit("update:imageFile", file);
+// URLs existentes guardadas en el modelo
+const existingImages = computed(() => form.value.image ?? []);
+
+function onImageFiles(event: Event) {
+  const files = Array.from((event.target as HTMLInputElement).files ?? []);
+  if (!files.length) return;
+  imageFiles.value = [...imageFiles.value, ...files];
+  emit("update:imageFiles", imageFiles.value);
+  if (imageInput.value) imageInput.value.value = "";
 }
 
-function clearImage() {
-  imageFile.value = null;
-  emit("update:imageFile", null);
-  update("image", "");
-  if (imageInput.value) imageInput.value.value = "";
+function onDrop(event: DragEvent) {
+  isDragging.value = false;
+  const files = Array.from(event.dataTransfer?.files ?? []).filter((f) =>
+    f.type.startsWith("image/"),
+  );
+  if (!files.length) return;
+  imageFiles.value = [...imageFiles.value, ...files];
+  emit("update:imageFiles", imageFiles.value);
+}
+
+function removeNewImage(index: number) {
+  imageFiles.value = imageFiles.value.filter((_, i) => i !== index);
+  emit("update:imageFiles", imageFiles.value);
+}
+
+function removeExistingImage(index: number) {
+  update(
+    "image",
+    existingImages.value.filter((_, i) => i !== index),
+  );
 }
 </script>
 
@@ -174,45 +194,71 @@ function clearImage() {
         />
       </UFormField>
 
-      <UFormField label="Imagen">
+      <UFormField label="Imágenes" class="md:col-span-2">
         <div class="space-y-3 w-full">
+          <!-- Dropzone -->
           <div
-            v-if="imagePreview"
-            class="relative w-full h-40 rounded-xl overflow-hidden border border-gray-200 bg-gray-50"
+            class="relative w-full rounded-xl border-2 border-dashed transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 py-8"
+            :class="isDragging ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-primary/50 bg-gray-50'"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="onDrop"
+            @click="imageInput?.click()"
           >
-            <img :src="imagePreview" class="w-full h-full object-cover" />
-            <UButton
-              icon="i-lucide-x"
-              size="xs"
-              color="error"
-              variant="solid"
-              class="absolute top-2 right-2 rounded-full"
-              @click="clearImage"
+            <UIcon name="i-lucide-image-plus" class="size-8 text-gray-400" />
+            <p class="text-sm text-gray-500 text-center">
+              Arrastra imágenes aquí o <span class="text-primary font-semibold">haz clic para seleccionar</span>
+            </p>
+            <p class="text-xs text-gray-400">Puedes seleccionar varias a la vez</p>
+            <input
+              ref="imageInput"
+              type="file"
+              accept="image/*"
+              multiple
+              class="hidden"
+              @change="onImageFiles"
             />
           </div>
-          <div class="flex gap-2">
-            <UInput
-              :model-value="form.image"
-              placeholder="URL de imagen o sube un archivo"
-              class="flex-1"
-              @update:model-value="update('image', $event)"
-            />
-            <UButton
-              icon="i-lucide-upload"
-              variant="outline"
-              color="neutral"
-              @click="imageInput?.click()"
-            >
-              Subir
-            </UButton>
+
+          <!-- Imágenes existentes (ya guardadas) -->
+          <div v-if="existingImages.length" class="space-y-1">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Guardadas</p>
+            <div class="flex flex-wrap gap-2">
+              <div
+                v-for="(url, i) in existingImages"
+                :key="url"
+                class="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 group"
+              >
+                <img :src="url" class="w-full h-full object-cover" />
+                <button
+                  class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  @click.stop="removeExistingImage(i)"
+                >
+                  <UIcon name="i-lucide-trash-2" class="size-4 text-white" />
+                </button>
+              </div>
+            </div>
           </div>
-          <input
-            ref="imageInput"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="onImageFile"
-          />
+
+          <!-- Imágenes nuevas (pendientes de subir) -->
+          <div v-if="filePreviews.length" class="space-y-1">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Por subir</p>
+            <div class="flex flex-wrap gap-2">
+              <div
+                v-for="(preview, i) in filePreviews"
+                :key="preview"
+                class="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/40 group"
+              >
+                <img :src="preview" class="w-full h-full object-cover" />
+                <button
+                  class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  @click.stop="removeNewImage(i)"
+                >
+                  <UIcon name="i-lucide-trash-2" class="size-4 text-white" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </UFormField>
 

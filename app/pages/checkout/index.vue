@@ -545,7 +545,7 @@ watch(currentStep, async (step) => {
               <div class="space-y-4">
                 <div v-for="item in cart" :key="item.id" class="flex gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:shadow-md transition-all items-center">
                   <div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 shadow-sm border border-black/5 bg-secondary">
-                     <NuxtImg :src="item.image" class="w-full h-full object-cover" />
+                     <NuxtImg :src="item.image?.[0]" class="w-full h-full object-cover" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <h4 class="font-bold text-black text-base line-clamp-1 group-hover:text-primary transition-colors">{{ item.title }}</h4>

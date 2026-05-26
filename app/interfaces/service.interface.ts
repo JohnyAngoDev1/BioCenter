@@ -6,7 +6,7 @@ export interface Service {
     description: string;
     longDescription?: string;
     price: number;
-    image: string;
+    image: string[];
     category: string;
     badge?: string;
     features?: string[];

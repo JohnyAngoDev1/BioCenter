@@ -52,7 +52,7 @@ const handleCheckout = () => {
         class="bg-secondary rounded-2xl p-3 flex gap-3 group transition-all"
       >
         <div class="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-          <NuxtImg :src="item.image" class="w-full h-full object-cover" />
+          <NuxtImg :src="item.image?.[0]" class="w-full h-full object-cover" />
         </div>
 
         <div class="flex-1 min-w-0">

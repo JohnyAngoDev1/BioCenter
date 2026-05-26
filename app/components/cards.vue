@@ -119,7 +119,7 @@ const handleAddToCart = (item: Service) => {
           <template #header>
             <div class="relative overflow-hidden aspect-[3/4] cursor-pointer" @click="openDetails(item)">
               <NuxtImg
-                :src="item.image"
+                :src="item.image?.[0]"
                 :alt="item.title"
                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 loading="lazy"

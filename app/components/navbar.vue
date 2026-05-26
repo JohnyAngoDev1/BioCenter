@@ -96,7 +96,7 @@ const handleCheckout = () => {
 
                 <div v-for="item in cart" :key="item.id" class="bg-white rounded-2xl p-4 shadow-sm border border-black/5 flex gap-4 group transition-all">
                     <div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
-                        <NuxtImg :src="item.image" class="w-full h-full object-cover" />
+                        <NuxtImg :src="item.image?.[0]" class="w-full h-full object-cover" />
                     </div>
 
                     <div class="flex-1 min-w-0">

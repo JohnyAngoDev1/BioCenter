@@ -117,8 +117,8 @@ async function confirmDelete() {
         <template #image-cell="{ row }">
           <div class="py-1">
             <img
-              v-if="row.original.image"
-              :src="row.original.image"
+              v-if="row.original.image?.[0]"
+              :src="row.original.image?.[0]"
               :alt="row.original.title"
               class="h-11 w-11 rounded-lg object-cover ring-1 ring-gray-100"
             />

@@ -12,7 +12,7 @@ const form = ref({
   description: "",
   longDescription: "",
   price: 0,
-  image: "",
+  image: [] as string[],
   category: "",
   badge: "",
   features: [] as string[],
@@ -21,7 +21,7 @@ const form = ref({
   isApplyIva: false,
 });
 
-const imageFile = ref<File | null>(null);
+const imageFiles = ref<File[]>([]);
 const loading = ref(false);
 
 async function handleSubmit() {
@@ -30,8 +30,11 @@ async function handleSubmit() {
   }
   loading.value = true;
   try {
-    if (imageFile.value) {
-      form.value.image = await uploadImage(imageFile.value, "biocenter/products");
+    if (imageFiles.value.length) {
+      const uploaded = await Promise.all(
+        imageFiles.value.map((f) => uploadImage(f, "biocenter/products")),
+      );
+      form.value.image = [...form.value.image, ...uploaded];
     }
     await create(form.value);
     await router.push("/dashboard/productos");
@@ -59,7 +62,7 @@ async function handleSubmit() {
     </div>
 
     <UCard class="max-w-4xl">
-      <ProductosProductoForm v-model="form" :loading="loading" @update:image-file="imageFile = $event">
+      <ProductosProductoForm v-model="form" :loading="loading" @update:image-files="imageFiles = $event">
         <template #actions>
           <UButton variant="ghost" color="neutral" to="/dashboard/productos">
             Cancelar
