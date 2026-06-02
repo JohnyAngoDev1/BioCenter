@@ -173,7 +173,9 @@ const goBack = () => {
         </div>
 
         <div v-else-if="selectedService" class="max-w-6xl mx-auto flex flex-row gap-8 lg:gap-16 items-center">
-          <ProductImageCarousel :images="selectedService.image ?? []" class="w-1/2 shrink-0" />
+          <div class="w-1/2 shrink-0">
+            <ProductImageCarousel :images="selectedService.image ?? []" />
+          </div>
 
           <div class="w-1/2 flex flex-col py-4 lg:py-8">
             <div class="mb-6 lg:mb-8">

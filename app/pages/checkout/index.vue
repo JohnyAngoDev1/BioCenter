@@ -421,7 +421,7 @@ const startPaymentPolling = (orderId: string, clientTransactionId: string, popup
         console.log('[FRONTEND] El usuario cerró el popup manualmente.')
       }
     } catch (e) {}
-  }, 1000)
+  }, 5000)
 }
 
 onUnmounted(() => {
