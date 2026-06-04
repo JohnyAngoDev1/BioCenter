@@ -110,7 +110,7 @@ const handleAddToCart = (item: Service) => {
       </div>
 
       <!-- Services Grid (Flat) -->
-      <div v-else class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 place-items-center">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 place-items-center">
         <UPageCard
           v-for="item in filteredServices"
           :key="item.id"

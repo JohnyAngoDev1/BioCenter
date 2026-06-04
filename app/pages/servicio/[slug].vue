@@ -82,9 +82,14 @@ const goBack = () => {
     </div>
 
     <template v-else-if="selectedService">
-      <!-- Imagen 1: full bleed, altura natural -->
-      <div class="w-full md:max-w-4xl md:mx-auto">
+      <!-- Mobile: imagen full-bleed -->
+      <div class="sm:hidden w-full">
         <NuxtImg :src="selectedService.image?.[0]" class="w-full h-auto block" />
+      </div>
+
+      <!-- Desktop: carrusel con flechas + miniaturas -->
+      <div class="hidden sm:block max-w-3xl mx-auto px-5 pt-8">
+        <ProductImageCarousel :images="selectedService.image || []" />
       </div>
 
       <!-- Info del producto -->
@@ -144,14 +149,15 @@ const goBack = () => {
         </div>
       </div>
 
-      <!-- Imágenes 2, 3, 4... full bleed -->
-      <template v-if="selectedService.image?.length > 1">
+      <!-- Imágenes full bleed (todas) -->
+      <template v-if="selectedService.image?.length">
         <div
-          v-for="(img, i) in selectedService.image.slice(1)"
+          v-for="(img, i) in selectedService.image"
           :key="i"
-          class="w-full md:max-w-4xl md:mx-auto"
+          class="w-full"
+          :class="i === 0 ? 'hidden sm:block' : ''"
         >
-          <NuxtImg :src="img" class="w-full h-auto block" />
+          <NuxtImg :src="img" class="w-full h-[900px] object-cover block" />
         </div>
       </template>
 
