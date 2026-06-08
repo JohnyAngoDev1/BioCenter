@@ -21,34 +21,15 @@ function next() {
 <template>
   <div class="flex flex-col gap-3 w-full">
 
-    <!-- MOBILE: primera imagen fija arriba + resto en vertical abajo -->
-    <div class="sm:hidden flex flex-col gap-3 w-full">
-      <!-- Primera imagen con altura fija (queda junto al botón de comprar) -->
-      <div class="relative w-full h-72 bg-secondary rounded-3xl overflow-hidden shadow-2xl shadow-primary/10">
-        <NuxtImg :src="images[0]" class="w-full h-full object-cover" />
-      </div>
-
-      <!-- Imágenes adicionales en vertical a tamaño completo -->
-      <template v-if="images.length > 1">
-        <div
-          v-for="(img, i) in images.slice(1)"
-          :key="i"
-          class="w-full rounded-2xl overflow-hidden shadow-lg"
-        >
-          <NuxtImg :src="img" class="w-full h-auto block" />
-        </div>
-      </template>
-    </div>
-
-    <!-- DESKTOP: carrusel con flechas y miniaturas -->
-    <div class="hidden sm:flex flex-col gap-3 w-full">
+    <!-- Carrusel (mobile y desktop) -->
+    <div class="flex flex-col gap-3 w-full">
       <!-- Imagen principal -->
-      <div class="relative w-full sm:h-96 md:h-[550px] shrink-0 bg-secondary rounded-3xl overflow-hidden shadow-2xl shadow-primary/10">
+      <div class="relative w-full bg-secondary rounded-3xl overflow-hidden shadow-2xl shadow-primary/10">
         <Transition name="carousel" mode="out-in">
           <NuxtImg
             :key="activeImage"
             :src="activeImage"
-            class="w-full h-full object-cover absolute inset-0"
+            class="w-full h-auto block max-h-[700px] object-contain"
           />
         </Transition>
 

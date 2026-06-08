@@ -7,7 +7,7 @@ export function useS3Upload() {
 
     await fetch(signedUrl, { method: "PUT", body: file });
 
-    return url_save;
+    return (url_save?.startsWith("http") ? url_save : signedUrl.split("?")[0]) as string;
   };
 
   return { uploadImage };

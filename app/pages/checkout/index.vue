@@ -598,7 +598,7 @@ watch(currentStep, async (step) => {
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                       <UIcon name="i-heroicons-user-20-solid" class="text-primary text-xl" />
                     </div>
-                    <h3 class="font-black text-lg text-black">Información Personal</h3>
+                    <h3 class="font-black text-lg text-black">Datos para la facturación</h3>
                   </div>
                 </template>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

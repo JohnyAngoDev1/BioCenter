@@ -86,6 +86,26 @@ function onSkuInput(val: unknown) {
   update("sku", v);
 }
 
+const toast = useToast()
+const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
+
+function validateAndFilterFiles(files: File[]): File[] {
+  const valid: File[] = []
+  for (const file of files) {
+    if (file.size > MAX_FILE_SIZE) {
+      toast.add({
+        title: 'Imagen muy grande',
+        description: `"${file.name}" supera los 2MB. Por favor comprímela antes de subirla.`,
+        icon: 'i-heroicons-exclamation-triangle',
+        color: 'error'
+      })
+    } else {
+      valid.push(file)
+    }
+  }
+  return valid
+}
+
 const imageFiles = ref<File[]>([]);
 const imageInput = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
@@ -99,7 +119,9 @@ const filePreviews = computed(() =>
 const existingImages = computed(() => form.value.image ?? []);
 
 function onImageFiles(event: Event) {
-  const files = Array.from((event.target as HTMLInputElement).files ?? []);
+  const files = validateAndFilterFiles(
+    Array.from((event.target as HTMLInputElement).files ?? [])
+  );
   if (!files.length) return;
   imageFiles.value = [...imageFiles.value, ...files];
   emit("update:imageFiles", imageFiles.value);
@@ -108,8 +130,8 @@ function onImageFiles(event: Event) {
 
 function onDrop(event: DragEvent) {
   isDragging.value = false;
-  const files = Array.from(event.dataTransfer?.files ?? []).filter((f) =>
-    f.type.startsWith("image/"),
+  const files = validateAndFilterFiles(
+    Array.from(event.dataTransfer?.files ?? []).filter((f) => f.type.startsWith("image/"))
   );
   if (!files.length) return;
   imageFiles.value = [...imageFiles.value, ...files];
@@ -209,7 +231,7 @@ function removeExistingImage(index: number) {
             <p class="text-sm text-gray-500 text-center">
               Arrastra imágenes aquí o <span class="text-primary font-semibold">haz clic para seleccionar</span>
             </p>
-            <p class="text-xs text-gray-400">Puedes seleccionar varias a la vez</p>
+            <p class="text-xs text-gray-400">Puedes seleccionar varias a la vez · Máx. 2MB por imagen</p>
             <input
               ref="imageInput"
               type="file"

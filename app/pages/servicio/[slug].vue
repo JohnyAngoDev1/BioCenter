@@ -12,6 +12,9 @@ const { addToCart } = useCart()
 const toast = useToast()
 const { t } = useTemplate()
 
+const { data: buttonConfig } = await useFetch('/api/config/button')
+const buttonColor = computed(() => (buttonConfig.value as any)?.buy_button_color || '#269144')
+
 const serviceSlug = String(route.params.slug)
 const selectedService = computed(() => {
   if (!servicesList.value) return null
@@ -82,13 +85,8 @@ const goBack = () => {
     </div>
 
     <template v-else-if="selectedService">
-      <!-- Mobile: imagen full-bleed -->
-      <div class="sm:hidden w-full">
-        <NuxtImg :src="selectedService.image?.[0]" class="w-full h-auto block" />
-      </div>
-
-      <!-- Desktop: carrusel con flechas + miniaturas -->
-      <div class="hidden sm:block max-w-3xl mx-auto px-5 pt-8">
+      <!-- Carrusel (mobile y desktop) -->
+      <div class="max-w-3xl mx-auto px-5 pt-6">
         <ProductImageCarousel :images="selectedService.image || []" />
       </div>
 
@@ -127,6 +125,7 @@ const goBack = () => {
             color="primary"
             variant="solid"
             class="rounded-2xl py-4 font-black shadow-xl shadow-primary/20"
+            :style="{ '--ui-primary': buttonColor }"
             @click="handleAddToCart"
           >
             {{ selectedService.isApplyPay !== false ? 'Comprar ahora' : 'Solicitar información' }}
@@ -155,11 +154,40 @@ const goBack = () => {
           v-for="(img, i) in selectedService.image"
           :key="i"
           class="w-full"
-          :class="i === 0 ? 'hidden sm:block' : ''"
         >
-          <NuxtImg :src="img" class="w-full h-[900px] object-cover block" />
+          <NuxtImg :src="img" class="w-full h-auto block" />
         </div>
       </template>
+
+      <!-- Botón comprar al final de las imágenes verticales -->
+      <div class="max-w-3xl mx-auto px-5 pt-10 pb-10 flex flex-col gap-3">
+        <UButton
+          block
+          size="xl"
+          color="primary"
+          variant="solid"
+          class="rounded-2xl py-4 font-black shadow-xl shadow-primary/20"
+          :style="{ '--ui-primary': buttonColor }"
+          @click="handleAddToCart"
+        >
+          {{ selectedService.isApplyPay !== false ? 'Comprar ahora' : 'Solicitar información' }}
+          <template #trailing>
+            <UIcon :name="selectedService.isApplyPay !== false ? 'i-heroicons-shopping-cart-20-solid' : 'i-simple-icons-whatsapp'" />
+          </template>
+        </UButton>
+
+        <UButton
+          block
+          variant="ghost"
+          class="rounded-xl py-3 font-bold hover:bg-gray-50"
+          @click="goBack"
+        >
+          <template #leading>
+            <UIcon name="i-heroicons-arrow-left-20-solid" />
+          </template>
+          Volver Atrás
+        </UButton>
+      </div>
 
       <!-- Productos Recomendados -->
       <div v-if="recommendedServices.length" class="max-w-5xl mx-auto px-5 mt-16 pb-12">
