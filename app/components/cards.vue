@@ -15,6 +15,9 @@ const { servicesList, pending, error } = useServices()
 const { addToCart } = useCart()
 const toast = useToast()
 
+const { data: buttonConfig } = await useFetch('/api/config/button')
+const buttonColor = computed(() => (buttonConfig.value as any)?.buy_button_color || '#269144')
+
 const selectedCategory = ref('Todo')
 
 const categories = t('categories')
@@ -151,6 +154,7 @@ const handleAddToCart = (item: Service) => {
               color="primary"
               variant="solid"
               class="flex-1 rounded-xl font-bold py-3 shadow-lg shadow-primary/20"
+              :style="{ '--ui-primary': buttonColor }"
               @click="handleAddToCart(item)"
             >
               {{ item.isApplyPay !== false ? 'Comprar ahora' : 'Solicitar información' }}
