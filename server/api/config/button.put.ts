@@ -1,3 +1,6 @@
+import { readFileSync, writeFileSync } from 'fs'
+import { resolve } from 'path'
+
 export default defineEventHandler(async (event) => {
   const token = getCookie(event, 'auth_token')
   if (!token) {
@@ -11,8 +14,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Color inválido. Debe ser un hex válido (ej: #269144)' })
   }
 
-  const storage = useStorage('data')
-  await storage.setItem('buy_button_color', color)
+  const configPath = resolve('./server/data/config.json')
+  const config = JSON.parse(readFileSync(configPath, 'utf-8'))
+  config.buy_button_color = color
+  writeFileSync(configPath, JSON.stringify(config, null, 2))
 
   return { success: true, buy_button_color: color }
 })
