@@ -10,6 +10,15 @@ export default defineNuxtConfig({
     colorMode: false,
   },
 
+  nitro: {
+    storage: {
+      data: {
+        driver: 'fs',
+        base: './.data/kv'
+      }
+    }
+  },
+
   runtimeConfig: {
     firmarArchivo: process.env.NUXT_FIRMAR_ARCHIVO || process.env.FIRMAR_ARCHIVO || "",
     catalogToken: "",
