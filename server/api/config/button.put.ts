@@ -14,8 +14,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Color inválido. Debe ser un hex válido (ej: #269144)' })
   }
 
-  await $fetch(`${API_URL}/empresa/${EMPRESA_ID}`, {
+  await $fetch(`${API_URL}/empresa/update/${EMPRESA_ID}`, {
     method: 'PUT',
+    headers: { Authorization: token },
     body: { buy_button_color: color },
   })
 
