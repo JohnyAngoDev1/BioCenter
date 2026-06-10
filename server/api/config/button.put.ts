@@ -1,21 +1,5 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
-import { join } from 'path'
-
-function getConfigPath() {
-  return join(process.cwd(), '.data', 'config.json')
-}
-
-function readConfig(): Record<string, string> {
-  const configPath = getConfigPath()
-  if (!existsSync(configPath)) return {}
-  return JSON.parse(readFileSync(configPath, 'utf-8'))
-}
-
-function writeConfig(data: Record<string, string>) {
-  const configPath = getConfigPath()
-  mkdirSync(join(process.cwd(), '.data'), { recursive: true })
-  writeFileSync(configPath, JSON.stringify(data, null, 2))
-}
+const EMPRESA_ID = '6a28b655351277cfc5b1b3fb'
+const API_URL = 'https://landingpay.magdata.com.ec'
 
 export default defineEventHandler(async (event) => {
   const token = getCookie(event, 'auth_token')
@@ -30,9 +14,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Color inválido. Debe ser un hex válido (ej: #269144)' })
   }
 
-  const config = readConfig()
-  config.buy_button_color = color
-  writeConfig(config)
+  await $fetch(`${API_URL}/empresa/${EMPRESA_ID}`, {
+    method: 'PUT',
+    body: { buy_button_color: color },
+  })
 
   return { success: true, buy_button_color: color }
 })
