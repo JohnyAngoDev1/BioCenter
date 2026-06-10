@@ -102,11 +102,16 @@ const { footerLinks } = useNavigation()
       </section>
     </UContainer>
 
-    <!-- Bottom Bar (Opcional, pero recomendado para copyright) -->
-    <UContainer class="mt-16 pt-8 border-t border-gray-100/50">
-      <p class="text-[10px] text-center font-bold text-gray-400 tracking-[0.2em] uppercase">
+    <UContainer class="mt-16 pt-8 border-t border-gray-100/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">
         © {{ new Date().getFullYear() }} {{ t('footer_copyright_text') }}
       </p>
+      <NuxtLink
+        to="/politicas"
+        class="text-[10px] font-bold text-gray-400 hover:text-primary transition-colors tracking-[0.2em] uppercase"
+      >
+        Políticas de Privacidad
+      </NuxtLink>
     </UContainer>
   </footer>
 </template>
