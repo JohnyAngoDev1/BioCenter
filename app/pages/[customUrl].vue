@@ -15,7 +15,7 @@ if (!producto.value) {
   throw createError({ statusCode: 404, statusMessage: 'Página no encontrada' })
 }
 
-const { addToCart } = useCart()
+const { addToCart, clearCart } = useCart()
 const { t } = useTemplate()
 
 const handleAddToCart = () => {
@@ -26,6 +26,7 @@ const handleAddToCart = () => {
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank')
     return
   }
+  clearCart()
   addToCart(producto.value)
   navigateTo('/checkout')
 }

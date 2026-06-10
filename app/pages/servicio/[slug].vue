@@ -8,8 +8,7 @@ import { useTemplate } from '~/composables/useTemplate'
 const route = useRoute()
 const router = useRouter()
 const { servicesList, pending, error } = useServices()
-const { addToCart } = useCart()
-const toast = useToast()
+const { addToCart, clearCart } = useCart()
 const { t } = useTemplate()
 
 const { data: buttonConfig } = await useFetch('/api/config/button', { getCachedData: () => undefined })
@@ -42,13 +41,9 @@ const handleAddToCart = () => {
       return
     }
 
+    clearCart()
     addToCart(selectedService.value)
-    toast.add({
-      title: '¡Producto añadido!',
-      description: `${selectedService.value.title} se ha agregado a tu carrito.`,
-      icon: 'i-heroicons-check-circle',
-      color: 'primary'
-    })
+    navigateTo('/checkout')
   }
 }
 

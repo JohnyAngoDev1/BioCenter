@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const { t } = useTemplate()
 const { servicesList, pending, error } = useServices()
-const { addToCart } = useCart()
+const { addToCart, clearCart } = useCart()
 
 const { data: buttonConfig } = await useFetch('/api/config/button')
 const buttonColor = computed(() => (buttonConfig.value as any)?.buy_button_color || '#269144')
@@ -57,6 +57,7 @@ const handleAddToCart = (item: Service) => {
   }
 
   // Flujo normal de carrito para pagos online
+  clearCart()
   addToCart(item)
   navigateTo('/checkout')
 }
