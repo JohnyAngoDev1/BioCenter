@@ -16,7 +16,6 @@ if (!producto.value) {
 }
 
 const { addToCart } = useCart()
-const toast = useToast()
 const { t } = useTemplate()
 
 const handleAddToCart = () => {
@@ -28,12 +27,7 @@ const handleAddToCart = () => {
     return
   }
   addToCart(producto.value)
-  toast.add({
-    title: '¡Producto añadido!',
-    description: `${producto.value.title} se ha agregado a tu carrito.`,
-    icon: 'i-heroicons-check-circle',
-    color: 'primary'
-  })
+  navigateTo('/checkout')
 }
 
 const goBack = () => {

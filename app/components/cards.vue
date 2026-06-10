@@ -13,14 +13,11 @@ const props = defineProps<{
 const { t } = useTemplate()
 const { servicesList, pending, error } = useServices()
 const { addToCart } = useCart()
-const toast = useToast()
 
 const { data: buttonConfig } = await useFetch('/api/config/button')
 const buttonColor = computed(() => (buttonConfig.value as any)?.buy_button_color || '#269144')
 
 const selectedCategory = ref('Todo')
-
-const categories = t('categories')
 
 const filteredServices = computed(() => {
   if (!servicesList.value) return []
@@ -36,8 +33,6 @@ const filteredServices = computed(() => {
 
   return list
 })
-
-const BASE_URL = "https://www.biocenter.life";
 
 const openDetails = (item: Service) => {
   if (item.url) {
@@ -63,12 +58,7 @@ const handleAddToCart = (item: Service) => {
 
   // Flujo normal de carrito para pagos online
   addToCart(item)
-  toast.add({
-    title: '¡Producto añadido!',
-    description: `${item.title} se ha agregado a tu carrito.`,
-    icon: 'i-heroicons-check-circle',
-    color: 'primary'
-  })
+  navigateTo('/checkout')
 }
 </script>
 
