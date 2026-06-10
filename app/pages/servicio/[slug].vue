@@ -12,7 +12,7 @@ const { addToCart } = useCart()
 const toast = useToast()
 const { t } = useTemplate()
 
-const { data: buttonConfig } = await useFetch('/api/config/button')
+const { data: buttonConfig } = await useFetch('/api/config/button', { getCachedData: () => undefined })
 const buttonColor = computed(() => (buttonConfig.value as any)?.buy_button_color || '#269144')
 
 const serviceSlug = String(route.params.slug)
@@ -125,7 +125,7 @@ const goBack = () => {
             color="primary"
             variant="solid"
             class="rounded-2xl py-4 font-black shadow-xl shadow-primary/20"
-            :style="{ '--ui-primary': buttonColor }"
+            :style="{ backgroundColor: buttonColor, boxShadow: `0 10px 30px ${buttonColor}40` }"
             @click="handleAddToCart"
           >
             {{ selectedService.isApplyPay !== false ? 'Comprar ahora' : 'Solicitar información' }}
@@ -167,7 +167,7 @@ const goBack = () => {
           color="primary"
           variant="solid"
           class="rounded-2xl py-4 font-black shadow-xl shadow-primary/20"
-          :style="{ '--ui-primary': buttonColor }"
+          :style="{ backgroundColor: buttonColor, boxShadow: `0 10px 30px ${buttonColor}40` }"
           @click="handleAddToCart"
         >
           {{ selectedService.isApplyPay !== false ? 'Comprar ahora' : 'Solicitar información' }}
