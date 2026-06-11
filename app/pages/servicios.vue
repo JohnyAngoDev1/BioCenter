@@ -3,5 +3,5 @@ import CardsSrvCorp from '../components/cards.vue'
 </script>
 
 <template>
-  <CardsSrvCorp hideHeader />
+  <CardsSrvCorp />
 </template>

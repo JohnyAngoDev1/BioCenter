@@ -1,0 +1,8 @@
+{
+  "faq_section_title": "Preguntas Frecuentes",
+  "faq_list": [
+    { "question": "¿La evaluación tiene costo?", "answer": "No. La evaluación médica inicial es gratuita por tiempo limitado." },
+    { "question": "¿La sueroterapia es igual para todos?", "answer": "No. Se recomienda según tus necesidades y valoración médica." },
+    { "question": "¿Qué contiene Bio Reset?", "answer": "Puede incluir vitaminas, minerales, aminoácidos y plasma marino, según criterio médico." }
+  ]
+}

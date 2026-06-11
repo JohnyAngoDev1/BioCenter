@@ -9,7 +9,7 @@ export const useNavigation = () => {
     const navItems = computed(() => {
         const items = [
             { label: t('navbar_link_home'), to: '/#top' },
-            { label: t('navbar_link_services'), to: '/#servicios' },
+            { label: t('navbar_link_services'), to: '/servicios' },
             { label: t('navbar_link_contact'), to: '#contacto' },
         ]
 

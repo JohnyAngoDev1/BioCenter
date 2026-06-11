@@ -1,0 +1,18 @@
+{
+  "social_proof_section_title": "Nuestro equipo te guía antes, durante y después de tu terapia.",
+  "social_proof_section_image": "/images/landing/social-proof.png",
+  "social_proof_blocks": [
+    {
+      "label": "Experiencia que genera confianza",
+      "text": "Biocenter es un centro médico con más de 10 años de experiencia sirviendo a la comunidad, acompañando a pacientes que buscan bienestar, energía y atención personalizada."
+    },
+    {
+      "label": "Mensaje destacado",
+      "text": "No es una terapia genérica. Cada recomendación parte de una evaluación médica profesional."
+    },
+    {
+      "label": "Estadística clave",
+      "text": "Valoración médica gratuita para nuevos pacientes por tiempo limitado."
+    }
+  ]
+}

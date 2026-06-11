@@ -16,9 +16,6 @@ const { t } = useTemplate()
 
                     <div class="space-y-8">
                         <div class="space-y-4">
-                            <span class="text-primary font-black uppercase tracking-[0.3em] text-xs">
-                                {{ t('landing_hero_badge_text') }}
-                            </span>
                             <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-black tracking-tighter leading-[0.9] sm:leading-[0.85]">
                                 {{ t('landing_hero_title_main') }}<br>
                                 <span class="text-primary italic">{{ t('landing_hero_title_highlight') }}</span>
@@ -33,24 +30,20 @@ const { t } = useTemplate()
                     <div class="flex flex-col sm:flex-row gap-4 items-start">
                         <UButton :label="t('landing_secondary_button_text')" variant="solid"
                             class="rounded-full px-10 py-5 bg-primary text-white font-bold text-xl shadow-2xl shadow-primary/30 hover:scale-105 transition-all"
-                            to="#servicios" />
-                        
-                        <div class="flex items-center gap-4 py-2 px-4">
-                            <div class="flex -space-x-3">
-                                <div class="w-10 h-10 rounded-full bg-[#f1f5f9] border-2 border-white shadow-sm overflow-hidden">
-                                    <NuxtImg src="/images/services/suero_beauty.png" class="w-full h-full object-cover" />
-                                </div>
-                                <div class="w-10 h-10 rounded-full bg-[#F7F7F7] border-2 border-white shadow-sm overflow-hidden">
-                                    <NuxtImg src="/images/services/suero_detox.png" class="w-full h-full object-cover" />
-                                </div>
-                                <div class="w-10 h-10 rounded-full bg-primary border-2 border-white shadow-sm overflow-hidden text-white flex items-center justify-center text-[10px] font-bold">
-                                    +50
-                                </div>
-                            </div>
-                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">
-                                {{ t('landing_trust_badge_text') }}
-                            </p>
-                        </div>
+                            to="/servicios" />
+
+                        <UButton
+                            label="Agendar evaluación gratuita"
+                            variant="outline"
+                            color="primary"
+                            class="rounded-full px-10 py-5 font-bold text-xl hover:scale-105 transition-all"
+                            :to="`https://wa.me/${t('wspbutton_phone_number')}?text=${encodeURIComponent('Hola, quiero agendar mi evaluación médica gratuita')}`"
+                            target="_blank"
+                        >
+                            <template #leading>
+                                <UIcon name="i-simple-icons-whatsapp" />
+                            </template>
+                        </UButton>
                     </div>
 
                 </div>

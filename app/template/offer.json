@@ -1,0 +1,9 @@
+{
+  "offer_section_title": "Detalles de la Oferta",
+  "offer_blocks": [
+    { "label": "Incluye", "text": "Evaluación médica gratuita + recomendación personalizada + orientación profesional." },
+    { "label": "Terapia destacada", "text": "Bio Reset: vitaminas, minerales, aminoácidos y plasma marino para apoyar energía, equilibrio y bienestar." },
+    { "label": "Precio", "text": "Evaluación inicial: Gratis. Sueroterapia: según valoración médica." },
+    { "label": "Garantía", "text": "Recibes una recomendación basada en tus necesidades reales, no una solución estándar." }
+  ]
+}
