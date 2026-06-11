@@ -22,10 +22,7 @@ export const useNavigation = () => {
 
     const footerLinks = computed(() => ({
         experience: [
-            { label: t('footer_link_portfolio'), to: '#' },
-            { label: t('footer_link_consulting'), to: '#' },
-            { label: t('footer_link_catalog'), to: '#' },
-            { label: t('footer_link_processes'), to: '#' }
+            { label: t('footer_link_catalog'), to: '/servicios' }
         ],
         company: [
             { label: t('footer_link_story'), to: '#' },

@@ -58,46 +58,40 @@ const { footerLinks } = useNavigation()
             <UIcon name="i-heroicons-map-pin" class="size-4 shrink-0 mt-0.5 text-primary-500" />
             <span>{{ t('contactus_info_address') }}</span>
           </div>
-          <div class="flex items-center gap-3 pt-2">
-            <UButton
-              icon="i-simple-icons-facebook"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              class="hover:text-primary hover:bg-primary/10 rounded-full"
-              :to="t('contactus_social_facebook')"
-              target="_blank"
-            />
-            <UButton
-              icon="i-simple-icons-instagram"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              class="hover:text-primary hover:bg-primary/10 rounded-full"
-              :to="t('contactus_social_instagram')"
-              target="_blank"
-            />
-            <UButton
-              icon="i-simple-icons-tiktok"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              class="hover:text-primary hover:bg-primary/10 rounded-full"
-              :to="t('contactus_social_tiktok')"
-              target="_blank"
-            />
-          </div>
         </div>
       </section>
 
-      <!-- Columna 4: Horario -->
+      <!-- Columna 4: Redes Sociales -->
       <section class="space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
-        <h3 class="font-bold text-black uppercase text-xs tracking-widest">{{ t('footer_nav_column_3_title') }}</h3>
-        <div class="flex flex-col gap-1">
-          <span class="font-bold text-slate-700 text-sm">{{ t('footer_horario_disponibilidad') }}</span>
-          <span class="text-gray-400 text-sm font-medium leading-relaxed">
-            {{ t('footer_horario_detalle') }}
-          </span>
+        <h3 class="font-bold text-black uppercase text-xs tracking-widest">Redes Sociales</h3>
+        <div class="flex items-center gap-3">
+          <UButton
+            icon="i-simple-icons-facebook"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            class="hover:text-primary hover:bg-primary/10 rounded-full"
+            :to="t('contactus_social_facebook')"
+            target="_blank"
+          />
+          <UButton
+            icon="i-simple-icons-instagram"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            class="hover:text-primary hover:bg-primary/10 rounded-full"
+            :to="t('contactus_social_instagram')"
+            target="_blank"
+          />
+          <UButton
+            icon="i-simple-icons-tiktok"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            class="hover:text-primary hover:bg-primary/10 rounded-full"
+            :to="t('contactus_social_tiktok')"
+            target="_blank"
+          />
         </div>
       </section>
     </UContainer>
