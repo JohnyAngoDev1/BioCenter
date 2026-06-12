@@ -29,14 +29,14 @@ const { t } = useTemplate()
 
                     <div class="flex flex-col sm:flex-row gap-4 items-start">
                         <UButton :label="t('landing_secondary_button_text')" variant="solid"
-                            class="rounded-full px-10 py-5 bg-primary text-white font-bold text-xl shadow-2xl shadow-primary/30 hover:scale-105 transition-all"
+                            class="rounded-full px-6 sm:px-10 py-5 bg-primary text-white font-bold text-base sm:text-xl shadow-2xl shadow-primary/30 hover:scale-105 transition-all w-full sm:w-auto"
                             to="/servicios" />
 
                         <UButton
                             label="Agendar evaluación gratuita"
                             variant="outline"
                             color="primary"
-                            class="rounded-full px-10 py-5 font-bold text-xl hover:scale-105 transition-all"
+                            class="rounded-full px-6 sm:px-10 py-5 font-bold text-base sm:text-xl hover:scale-105 transition-all w-full sm:w-auto"
                             :to="`https://wa.me/${t('wspbutton_phone_number')}?text=${encodeURIComponent('Hola, quiero agendar mi evaluación médica gratuita')}`"
                             target="_blank"
                         >
