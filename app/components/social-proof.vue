@@ -13,8 +13,10 @@ const blocks = t('social_proof_blocks') as { label: string; text: string }[]
 
         <!-- Contenido -->
         <div class="flex flex-col gap-8 order-1">
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-black tracking-tight leading-tight">
-            {{ t('social_proof_section_title') }}
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            <span class="text-black">{{ t('social_proof_section_title') }}</span>
+            <br>
+            <span class="text-primary italic">{{ t('social_proof_section_title_highlight') }}</span>
           </h2>
 
           <div class="space-y-6">
@@ -28,8 +30,8 @@ const blocks = t('social_proof_blocks') as { label: string; text: string }[]
                 class="text-primary w-7 h-7 shrink-0 mt-0.5"
               />
               <div>
-                <p class="font-black text-black text-sm uppercase tracking-wide mb-1">{{ block.label }}</p>
-                <p class="text-gray-500 text-sm leading-relaxed">{{ block.text }}</p>
+                <p class="font-black text-black text-lg uppercase tracking-wide mb-1">{{ block.label }}</p>
+                <p class="text-black text-lg leading-relaxed">{{ block.text }}</p>
               </div>
             </div>
           </div>

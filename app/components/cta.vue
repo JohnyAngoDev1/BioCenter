@@ -13,11 +13,13 @@ const whatsappUrl = computed(() =>
     <UContainer>
       <div class="max-w-2xl mx-auto flex flex-col items-center text-center gap-6">
 
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-black tracking-tight leading-tight">
-          {{ t('cta_title') }}
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+          <span class="text-black">{{ t('cta_title') }}</span>
+          <br>
+          <span class="text-primary italic">{{ t('cta_title_highlight') }}</span>
         </h2>
 
-        <p class="text-gray-500 text-base sm:text-lg leading-relaxed">
+        <p class="text-black text-base sm:text-lg leading-relaxed">
           {{ t('cta_description') }}
         </p>
 
@@ -35,7 +37,7 @@ const whatsappUrl = computed(() =>
           {{ t('cta_button_text') }}
         </UButton>
 
-        <span class="text-gray-400 text-sm font-bold uppercase tracking-widest mt-2">
+        <span class="text-black/70 text-base font-bold uppercase tracking-widest mt-2">
           {{ t('cta_badge_text') }}
         </span>
 

@@ -22,7 +22,7 @@ const { t } = useTemplate()
                             </h1>
                         </div>
 
-                        <p class="text-gray-500 text-base sm:text-xl leading-relaxed max-w-lg">
+                        <p class="text-black text-base sm:text-xl leading-relaxed max-w-lg">
                             {{ t('landing_hero_description') }}
                         </p>
                     </div>

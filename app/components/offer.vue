@@ -30,8 +30,8 @@ const blocks = t('offer_blocks') as { label: string; text: string }[]
               class="text-primary w-7 h-7 shrink-0 mt-0.5"
             />
             <div>
-              <p class="font-black text-black text-sm uppercase tracking-wide mb-1">{{ block.label }}</p>
-              <p class="text-gray-500 text-sm leading-relaxed">{{ block.text }}</p>
+              <p class="font-black text-black text-lg uppercase tracking-wide mb-1">{{ block.label }}</p>
+              <p class="text-black text-base leading-relaxed">{{ block.text }}</p>
             </div>
           </div>
         </div>

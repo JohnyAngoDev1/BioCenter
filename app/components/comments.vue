@@ -55,7 +55,7 @@ const { testimonialsList } = useTestimonials()
                             class="bg-gray-100" />
                         <div class="flex flex-col">
                             <span class="font-bold text-[#0f172a] text-lg">{{ testimonial.user.name }}</span>
-                            <span class="text-gray-400 text-xs uppercase font-bold tracking-wider">{{
+                            <span class="text-black text-lg uppercase font-bold tracking-wider">{{
                                 testimonial.user.description }}</span>
                         </div>
                     </div>

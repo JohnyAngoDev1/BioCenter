@@ -22,8 +22,10 @@ const benefits = t('benefits_list') as { title: string; description: string }[]
 
         <!-- Contenido -->
         <div class="flex flex-col gap-8 order-1 lg:order-2">
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-black tracking-tight leading-tight">
-            {{ t('benefits_section_title') }}
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            <span class="text-black">{{ t('benefits_section_title') }}</span>
+            <br>
+            <span class="text-primary italic">{{ t('benefits_section_title_highlight') }}</span>
           </h2>
 
           <div class="space-y-1">
@@ -39,8 +41,8 @@ const benefits = t('benefits_list') as { title: string; description: string }[]
                   class="text-primary w-6 h-6 shrink-0 mt-0.5"
                 />
                 <div>
-                  <p class="font-bold text-black text-base">{{ benefit.title }}</p>
-                  <p v-if="benefit.description" class="text-gray-500 text-sm leading-relaxed mt-0.5">
+                  <p class="font-bold text-black text-lg">{{ benefit.title }}</p>
+                  <p v-if="benefit.description" class="text-black text-lg leading-relaxed mt-0.5">
                     {{ benefit.description }}
                   </p>
                 </div>

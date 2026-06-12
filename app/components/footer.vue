@@ -22,7 +22,7 @@ const { footerLinks } = useNavigation()
             {{ t('navbar_brand_name') }}
           </span>
         </div>
-        <p class="text-gray-500 text-sm leading-relaxed max-w-xs">
+        <p class="text-black text-base leading-relaxed max-w-xs">
           {{ t('footer_company_description') }}
         </p>
       </section>
@@ -35,7 +35,7 @@ const { footerLinks } = useNavigation()
             v-for="link in footerLinks.experience"
             :key="link.label"
             :to="link.to"
-            class="text-gray-400 hover:text-primary text-sm font-medium transition-colors"
+            class="text-black hover:text-primary text-sm font-medium transition-colors"
           >
             {{ link.label }}
           </ULink>
@@ -46,15 +46,15 @@ const { footerLinks } = useNavigation()
       <section class="space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
         <h3 class="font-bold text-black uppercase text-xs tracking-widest">{{ t('footer_nav_column_2_title') }}</h3>
         <div class="flex flex-col gap-4 items-center md:items-start">
-          <a :href="'tel:' + t('contactus_info_phone').replace(/\s+/g, '')" class="text-gray-400 hover:text-primary text-sm font-medium transition-colors flex items-center gap-2">
+          <a :href="'tel:' + t('contactus_info_phone').replace(/\s+/g, '')" class="text-gray-700 hover:text-primary text-sm font-medium transition-colors flex items-center gap-2">
             <UIcon name="i-heroicons-phone" class="size-4 shrink-0 text-primary-500" />
             {{ t('contactus_info_phone') }}
           </a>
-          <a :href="'mailto:' + t('contactus_info_email')" class="text-gray-400 hover:text-primary text-sm font-medium transition-colors truncate flex items-center gap-2">
+          <a :href="'mailto:' + t('contactus_info_email')" class="text-gray-700 hover:text-primary text-sm font-medium transition-colors truncate flex items-center gap-2">
             <UIcon name="i-heroicons-envelope" class="size-4 shrink-0 text-primary-500" />
             {{ t('contactus_info_email') }}
           </a>
-          <div class="text-gray-400 text-sm font-medium leading-relaxed max-w-[280px] flex items-start gap-2">
+          <div class="text-gray-700 text-sm font-medium leading-relaxed max-w-[280px] flex items-start gap-2">
             <UIcon name="i-heroicons-map-pin" class="size-4 shrink-0 mt-0.5 text-primary-500" />
             <span>{{ t('contactus_info_address') }}</span>
           </div>
@@ -69,7 +69,7 @@ const { footerLinks } = useNavigation()
             icon="i-simple-icons-facebook"
             variant="ghost"
             color="neutral"
-            size="sm"
+            size="xl"
             class="hover:text-primary hover:bg-primary/10 rounded-full"
             :to="t('contactus_social_facebook')"
             target="_blank"
@@ -78,7 +78,7 @@ const { footerLinks } = useNavigation()
             icon="i-simple-icons-instagram"
             variant="ghost"
             color="neutral"
-            size="sm"
+            size="xl"
             class="hover:text-primary hover:bg-primary/10 rounded-full"
             :to="t('contactus_social_instagram')"
             target="_blank"
@@ -87,7 +87,7 @@ const { footerLinks } = useNavigation()
             icon="i-simple-icons-tiktok"
             variant="ghost"
             color="neutral"
-            size="sm"
+            size="xl"
             class="hover:text-primary hover:bg-primary/10 rounded-full"
             :to="t('contactus_social_tiktok')"
             target="_blank"
@@ -97,12 +97,12 @@ const { footerLinks } = useNavigation()
     </UContainer>
 
     <UContainer class="mt-16 pt-8 border-t border-gray-100/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p class="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">
+      <p class="text-[12px] font-bold text-black tracking-[0.2em] uppercase">
         © {{ new Date().getFullYear() }} {{ t('footer_copyright_text') }}
       </p>
       <NuxtLink
         to="/politicas"
-        class="text-[10px] font-bold text-gray-400 hover:text-primary transition-colors tracking-[0.2em] uppercase"
+        class="text-[12px] font-bold text-black hover:text-primary transition-colors tracking-[0.2em] uppercase"
       >
         Políticas de Privacidad
       </NuxtLink>

@@ -1,5 +1,6 @@
 {
-  "benefits_section_title": "Más de 10 años cuidando el bienestar de Santo Domingo de los Tsáchilas.",
+  "benefits_section_title": "Más de 10 años cuidando el bienestar",
+  "benefits_section_title_highlight": "de Santo Domingo de los Tsáchilas.",
   "benefits_section_image": "/images/landing/benefits.png",
   "benefits_list": [
     { "title": "Energía y vitalidad", "description": "Apoya tu bienestar cuando sientes cansancio, desgaste o baja energía." },

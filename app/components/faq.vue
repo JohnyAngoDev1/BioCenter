@@ -29,7 +29,7 @@ const items = faqList.map(item => ({
           :ui="{
             item: 'border border-primary/10 rounded-2xl mb-3 overflow-hidden bg-white',
             label: 'font-bold text-black text-base py-4 px-5',
-            content: 'text-gray-500 text-sm leading-relaxed px-5 pb-5'
+            content: 'text-black text-base leading-relaxed px-5 pb-5'
           }"
         />
       </div>
