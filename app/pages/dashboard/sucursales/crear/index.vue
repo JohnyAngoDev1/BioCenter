@@ -5,6 +5,7 @@ const { create, getAll } = useSucursales();
 const router = useRouter();
 
 const form = ref({
+  empresa: undefined as string | undefined,
   nombre: "",
   codigo_establecimiento: undefined as number | undefined,
   punto_emision: undefined as number | undefined,
@@ -19,7 +20,7 @@ const nombreError = ref("");
 async function handleSubmit() {
   nombreError.value = "";
 
-  if (!form.value.nombre.trim() || !form.value.ambiente) {
+  if (!form.value.nombre.trim() || !form.value.ambiente || !form.value.empresa) {
     return;
   }
 

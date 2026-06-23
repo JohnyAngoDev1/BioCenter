@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { AMBIENTE_OPTIONS } from "~/composables/useSucursales";
 import type { Sucursal } from "~/composables/useSucursales";
+import { useEmpresas } from "~/composables/useEmpresas";
 
 const props = defineProps<{
   modelValue: Partial<Sucursal>;
@@ -20,6 +21,20 @@ const form = computed({
 function update(field: keyof Sucursal, value: any) {
   emit("update:modelValue", { ...props.modelValue, [field]: value });
 }
+
+const { getAll: getAllEmpresas } = useEmpresas();
+const empresaOptions = ref<{ label: string; value: string }[]>([]);
+
+onMounted(async () => {
+  const empresas = await getAllEmpresas();
+  empresaOptions.value = empresas.map((e) => ({
+    label: e.nombre_comercial || e.razon_social,
+    value: e._id,
+  }));
+  if (!form.value.empresa && empresaOptions.value[0] && empresaOptions.value.length === 1) {
+    update("empresa", empresaOptions.value[0].value);
+  }
+});
 </script>
 
 <template>
@@ -31,6 +46,18 @@ function update(field: keyof Sucursal, value: any) {
           placeholder="Ej: Sucursal Quito Norte"
           class="w-full"
           @update:model-value="update('nombre', $event)"
+        />
+      </UFormField>
+
+      <UFormField label="Empresa" required class="md:col-span-2">
+        <USelect
+          :model-value="form.empresa"
+          :items="empresaOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="Selecciona empresa"
+          class="w-full"
+          @update:model-value="update('empresa', $event)"
         />
       </UFormField>
 

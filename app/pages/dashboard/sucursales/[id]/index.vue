@@ -21,7 +21,7 @@ const nombreError = ref("");
 async function handleSubmit() {
   nombreError.value = "";
 
-  if (!form.value.nombre?.trim() || !form.value.ambiente) {
+  if (!form.value.nombre?.trim() || !form.value.ambiente || !form.value.empresa) {
     return;
   }
 
